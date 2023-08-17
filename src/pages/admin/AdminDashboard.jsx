@@ -19,7 +19,7 @@ const AdminDashboard = () => {
 
           <SimpleGrid spacing={2} minChildWidth="200px" m="10px">
             <Card>
-              <CardHeader bg="gray.50" fontWeight="500" className='step-header'>STEP 1</CardHeader>
+              <CardHeader  fontWeight="500" className="step-header">STEP 1</CardHeader>
               <Divider borderColor="gray.300"/>
               <CardBody fontSize='md' justifyContent="center" alignItems="center">Define Project Scope</CardBody>
             </Card>
