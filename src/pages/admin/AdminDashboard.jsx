@@ -13,7 +13,7 @@ const AdminDashboard = () => {
         <Sidebar/>
       </GridItem>
 
-      <GridItem colSpan="5" p='10px' spacing={8}>
+      <GridItem colSpan="5" p='10px' spacing={8} className= "project-background">
         <Box>
           <Text ml="10px" fontSize={{ base: '18px', md: '22px', lg: '30px' }} color="#445069">How to create Project Template?</Text>
 
