@@ -25,25 +25,25 @@ const AdminDashboard = () => {
             </Card>
 
             <Card>
-            <CardHeader bg="gray.50" fontWeight="500">STEP 2</CardHeader>
+            <CardHeader  fontWeight="500" className="step-header">STEP 2</CardHeader>
               <Divider borderColor="gray.300"/>
               <CardBody fontSize='md'>Create Project Phases</CardBody>
             </Card>
 
             <Card>
-            <CardHeader bg="gray.50" fontWeight="500">STEP 3</CardHeader>
+            <CardHeader  fontWeight="500" className="step-header">STEP 3</CardHeader>
               <Divider borderColor="gray.300"/>
               <CardBody fontSize='md'>Define Modules with each Project Phases</CardBody>
             </Card>
 
             <Card>
-            <CardHeader bg="gray.50" fontWeight="500">STEP 4</CardHeader>
+            <CardHeader  fontWeight="500" className="step-header">STEP 4</CardHeader>
               <Divider borderColor="gray.300"/>
               <CardBody fontSize='md'>Create Task and Sub-Task with each Modules</CardBody>
             </Card>
 
             <Card>
-            <CardHeader bg="gray.50" fontWeight="500">STEP 5</CardHeader>
+            <CardHeader  fontWeight="500" className="step-header">STEP 5</CardHeader>
               <Divider borderColor="gray.300"/>
               <CardBody fontSize='md' >Integrate task with respective automated solution via API connect</CardBody>
             </Card>
@@ -51,7 +51,7 @@ const AdminDashboard = () => {
         </Box>
 
         <Box>
-          <Text ml="10px" fontSize={{ base: '18px', md: '22px', lg: '30px' }} color="#445069">Existing Project Template</Text>
+          <Text className='sub-title' fontSize={{ base: '18px', md: '22px', lg: '30px' }} >Existing Project Template</Text>
 
           <TableContainer mt='10px'>
             <Table variant='simple'>

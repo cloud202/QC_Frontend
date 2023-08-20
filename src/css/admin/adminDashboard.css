@@ -2,5 +2,9 @@
     background: rgb(247, 245, 255);
 }
 .step-header{
-    background: rgb(212, 216, 255);
+    background: #C9BDFF;
+}
+.sub-title{
+    background: #D4D8FF;
+    margin-left:10px;
 }

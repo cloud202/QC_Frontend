@@ -15,14 +15,18 @@ const NewProject = () => {
     segment: "Select an option",
     industry: "Select an option",
     useCase: "",
-    phase: "Select an option"
+    phase: []
   })
+  setTimeout(() => {
+    console.log(formData)
+  }, 9000);
 
-  const [tableData, setTableData] = useState({
+  const [tableData, setTableData] = useState([{
     name: "",
     description: "",
-    scope: ""
-  });
+    scope: "",
+    id: ""
+  }]);
 
   const handlePrevious = ()=>{
     setCurrPage(currPage-1);

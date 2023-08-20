@@ -1,49 +1,95 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import { Box, Button, Flex, FormControl, FormLabel, Input, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Switch, Table, TableContainer, Tbody, Td, Text, Textarea, Th, Thead, Tr, VStack, useDisclosure } from '@chakra-ui/react';
-import { AddIcon, ChevronDownIcon, DeleteIcon } from '@chakra-ui/icons';
+import { Checkbox,Box, Button, Flex, FormControl, FormLabel, HStack, Input, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Switch, Table, TableContainer, Tbody, Td, Text, Textarea, Th, Thead, Tr, VStack, useDisclosure, useToast } from '@chakra-ui/react';
+import { AddIcon, ChevronDownIcon, DeleteIcon, RepeatIcon, SmallCloseIcon } from '@chakra-ui/icons';
+import AddPhaseModal from './AddPhaseModal';
+import UpdatePhaseModal from './UpdatePhaseModal';
 
 export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
+  const toast = useToast()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [phase,setPhase] = useState([])
 
-  const [moduleFormData, setModuleFormData] = useState({
+  const [phaseFormData, setPhaseFormData] = useState({
     name: "",
     description: "",
     scope: "",
     supportive_id: "",
-    status: false,
+    status: true,
   });
+  const [phaseFormSubmitted, setPhaseFormSubmitted] = useState(false);
+  const [checkedPhases, setCheckedPhases] = useState([]);
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setModuleFormData((prevData) => ({ ...prevData, [name]: value }));
+    setPhaseFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
   const handleStatusChange = () => {
-    setModuleFormData((prevData) => ({ ...prevData, status: !prevData.status }));
+    setPhaseFormData((prevData) => ({ ...prevData, status: !prevData.status }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle form submission, e.g., send data to backend
-    console.log(moduleFormData);
+  const handleSubmit = async () => {
+    try{
+      const {data} = await axios.post("http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_phase",phaseFormData);
+      console.log(data)
+      setPhaseFormSubmitted(true);
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        phase: [...prevFormData.phase, data.name]
+      }));
+
+      setTableData((prevData)=>[...prevData,{name: data.name,description: data.description,scope: data.scope,id: data._id}])
+
+      toast({
+        title: "Phase Added",
+        description: "The phase has been added successfully.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    }catch (error) {
+      console.error("Error sending phase form data:", error);
+    }
   };
 
   const handlePhaseSelect = async (selectedPhaseId,selectedPhaseName) => {
     try {
       const response = await axios.get(`http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_phase/${selectedPhaseId}`);
 
-      setFormData({ ...formData, phase: selectedPhaseName });
-      setTableData({name: response.data.name,description: response.data.description,scope: response.data.scope})
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        phase: [...prevFormData.phase, selectedPhaseName]
+      }));
+
+      const newData = {
+        name: response.data.name,
+        description: response.data.description,
+        scope: response.data.scope,
+        id: response.data._id
+      };
+  
+      setTableData((prevTableData) => [...prevTableData, newData]);
+      setCheckedPhases((prevCheckedPhases) => [...prevCheckedPhases, selectedPhaseId]);
+
     } catch (error) {
       console.error("Error fetching selected phase data:", error);
     }
   };
 
-  const handleRemovePhase =()=>{
-    setTableData({name: "",description: "",scope: ""})
-    setFormData({...formData,phase: "Select an option"});
+  const handleRemovePhase =(index,phaseId,phase)=>{
+    const updatedTableData = [...tableData];
+    updatedTableData.splice(index, 1);
+
+    setTableData(updatedTableData);
+    setCheckedPhases((prevCheckedPhases) => prevCheckedPhases.filter((id) => id !== phaseId));
+
+    const updatedPhases = formData.phase.filter((phaseName) => phaseName !== phase);
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      phase: updatedPhases,
+    }));
   }
 
   useEffect(() => {
@@ -52,7 +98,7 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
         setPhase(phases.data)
     }
     fetchData();  
-  }, [])
+  }, [phaseFormSubmitted])
 
 
   return (
@@ -61,44 +107,64 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
           <FormLabel flex="1">Select Phase:</FormLabel>
           <Menu >
             <MenuButton w="80%" as={Button} variant="outline" colorScheme="gray" rightIcon={<ChevronDownIcon />}>
-              {formData.phase}
+              Select an option
             </MenuButton>
-            <MenuList>
+            <MenuList p='20px'>
                 {
-                    phase && phase.map((val,ind)=> <MenuItem key={ind} onClick={() => handlePhaseSelect(val._id,val.name)}>{val.name}</MenuItem>)
+                    // phase && phase.map((val,ind)=> <MenuItem key={ind} onClick={() => handlePhaseSelect(val._id,val.name)}>{val.name}</MenuItem>)
+                    phase && phase.map((val,ind)=> (
+                      <HStack p='2px' key={val._id}>
+                       <Checkbox
+                        spacing={2}
+                        size='md'
+                        colorScheme='green'
+                        isChecked={checkedPhases.includes(val._id)}
+                        onChange={(e) => { if(e.target.checked) handlePhaseSelect(val._id, val.name)}}
+                      >
+                        {val.name}
+                      </Checkbox>
+                      </HStack>
+
+                    ))
                 }
             </MenuList>
           </Menu>
 
         </Flex>
-        
-        <Button rightIcon={<AddIcon />} colorScheme='purple' variant='outline' onClick={onOpen}>Add Phase</Button>
-        <Modal isOpen={isOpen} onClose={onClose}>
+      <Flex justifyContent='space-between'>
+        <AddPhaseModal tableData={tableData} phaseFormData={phaseFormData} setPhaseFormData={setPhaseFormData} handleSubmit={handleSubmit} />
+      
+        <UpdatePhaseModal phaseFormData={phaseFormData} setPhaseFormData={setPhaseFormData} handleSubmit={handleSubmit} phase={phase}/>
+
+        <Button rightIcon={<DeleteIcon />} size='sm' colorScheme='red' variant='outline' onClick={onOpen}>Delete Phase</Button>
+        <Modal isOpen={isOpen} onClose={onClose} size='lg'>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Define phase</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
           <Box p={4}>
-            <form onSubmit={handleSubmit}>
+            <form>
               <VStack spacing={4}>
+
                 <FormControl isRequired>
+
                   <FormLabel>Name</FormLabel>
                   <Input
                     type="text"
                     name="name"
-                    value={formData.name}
+                    value={phaseFormData.name}
                     onChange={handleInputChange}
-                  />
+                    />
                 </FormControl>
 
                 <FormControl isRequired>
                   <FormLabel>Description</FormLabel>
                   <Textarea
                     name="description"
-                    value={formData.description}
+                    value={phaseFormData.description}
                     onChange={handleInputChange}
-                  />
+                    />
                 </FormControl>
 
                 <FormControl isRequired>
@@ -106,46 +172,28 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
                   <Input
                     type="text"
                     name="scope"
-                    value={formData.scope}
+                    value={phaseFormData.scope}
                     onChange={handleInputChange}
-                  />
+                    />
                 </FormControl>
-
-                <FormControl isRequired>
-                  <FormLabel>Supportive ID</FormLabel>
-                  <Input
-                    type="text"
-                    name="supportive_id"
-                    value={formData.supportive_id}
-                    onChange={handleInputChange}
-                  />
-                </FormControl>
-
-                <FormControl>
-                  <FormLabel>Status</FormLabel>
-                  <Switch
-                    name="status"
-                    isChecked={formData.status}
-                    onChange={handleStatusChange}
-                  />
-                </FormControl>
-              </VStack>
+                    </VStack>
             </form>
           </Box>
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme='purple' variant='outline' mr={3} onClick={onClose}>
-              Close
+            <Button colorScheme='purple' variant='outline' mr={3} onClick={onClose}>Close
             </Button>
-            <Button colorScheme='purple' type='submit'>Submit</Button>
+            <Button colorScheme='purple' type='submit' onClick={handleSubmit}>Submit</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
-        <Text mt='15px' fontSize={{ base: '18px', md: '22px', lg: '30px' }} color="#445069">Selected Phase</Text>
+
+      </Flex>
+        <Text mt='15px' fontSize={{ base: '18px', md: '22px', lg: '30px' }} color="#445069">Selected Phases</Text>
         
         <TableContainer mb='20px'>
-            <Table variant='striped' colorScheme='purple'>
+            <Table colorScheme='purple'>
               <Thead>
                 <Tr>
                   <Th>Phase</Th>
@@ -156,21 +204,30 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
               </Thead>
 
               <Tbody>
-                {tableData && (
-                <Tr>
-                  <Td>{tableData.name}</Td>
-                  <Td>{tableData.description}</Td>
-                  <Td>{tableData.scope}</Td>
-                  <Td>
-                    {tableData.name!=="" && <Button rightIcon={<DeleteIcon />} size='sm' colorScheme='red' variant='outline' onClick={handleRemovePhase} >Remove Phase</Button>}
-                  </Td>
-                </Tr>
-              )}     
-              </Tbody>
+                  {tableData.map((rowData, index) => (
+                    <Tr key={index}>
+                      <Td>{rowData.name}</Td>
+                      <Td>{rowData.description}</Td>
+                      <Td>{rowData.scope}</Td>
+                      <Td>
+                        {rowData.name !== "" && (
+                          <Button
+                            rightIcon={<SmallCloseIcon />}
+                            size='sm'
+                            colorScheme='red'
+                            variant='outline'
+                            onClick={() => handleRemovePhase(index,rowData.id,rowData.name)}
+                          >
+                            Remove
+                          </Button>
+                        )}
+                      </Td>
+                    </Tr>
+                  ))}
+                </Tbody>
+
             </Table>
-          </TableContainer>
-          
-       
+          </TableContainer>      
       </Flex>
   )
 }
