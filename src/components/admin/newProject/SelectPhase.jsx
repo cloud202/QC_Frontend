@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import axios from 'axios'
-import { Checkbox,Box, Button, Flex, FormControl, FormLabel, HStack, Input, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Switch, Table, TableContainer, Tbody, Td, Text, Textarea, Th, Thead, Tr, VStack, useDisclosure, useToast } from '@chakra-ui/react';
-import { AddIcon, ChevronDownIcon, DeleteIcon, RepeatIcon, SmallCloseIcon } from '@chakra-ui/icons';
+import { Checkbox,Box, Button, Flex, FormControl, FormLabel, HStack, Input, Menu, MenuButton, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Textarea, Th, Thead, Tr, VStack, useDisclosure, useToast } from '@chakra-ui/react';
+import { ChevronDownIcon, SmallCloseIcon } from '@chakra-ui/icons';
 import AddPhaseModal from './AddPhaseModal';
-import UpdatePhaseModal from './UpdatePhaseModal';
 
 export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
   const toast = useToast()
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  const { isOpen, onClose } = useDisclosure()
   const [phase,setPhase] = useState([])
 
   const [phaseFormData, setPhaseFormData] = useState({
@@ -26,10 +25,6 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
     setPhaseFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleStatusChange = () => {
-    setPhaseFormData((prevData) => ({ ...prevData, status: !prevData.status }));
-  };
-
   const handleSubmit = async () => {
     try{
       const {data} = await axios.post("http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_phase",phaseFormData);
@@ -40,7 +35,8 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
         phase: [...prevFormData.phase, data.name]
       }));
 
-      setTableData((prevData)=>[...prevData,{name: data.name,description: data.description,scope: data.scope,id: data._id}])
+      // setTableData((prevData)=>[...prevData,{name: data.name,description: data.description,scope: data.scope,id: data._id}])
+      setPhase((prevData)=>[...prevData,{name: data.name,description: data.description,scope: data.scope,id: data._id}])
 
       toast({
         title: "Phase Added",
@@ -92,13 +88,18 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
     }));
   }
 
-  useEffect(() => {
-    async function fetchData(){
-        const phases = await axios.get("http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_phase")
-        setPhase(phases.data)
+  const fetchDataEffect = useCallback(async () => {
+    try {
+      const phases = await axios.get("http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_phase");
+      setPhase(phases.data);
+    } catch (error) {
+      console.error("Error fetching phase data:", error);
     }
-    fetchData();  
-  }, [phaseFormSubmitted])
+  },[]);
+
+  useEffect(() => {
+    fetchDataEffect();
+  }, [phaseFormSubmitted,fetchDataEffect]);
 
 
   return (
@@ -132,11 +133,8 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
 
         </Flex>
       <Flex justifyContent='space-between'>
-        <AddPhaseModal tableData={tableData} phaseFormData={phaseFormData} setPhaseFormData={setPhaseFormData} handleSubmit={handleSubmit} />
-      
-        <UpdatePhaseModal phaseFormData={phaseFormData} setPhaseFormData={setPhaseFormData} handleSubmit={handleSubmit} phase={phase}/>
+        <AddPhaseModal phase={phase} setPhase={setPhase} tableData={tableData} setTableData={setTableData} phaseFormData={phaseFormData} setPhaseFormData={setPhaseFormData} handleSubmit={handleSubmit} setPhaseFormSubmitted={setPhaseFormSubmitted} fetchDataEffect={fetchDataEffect}/>
 
-        <Button rightIcon={<DeleteIcon />} size='sm' colorScheme='red' variant='outline' onClick={onOpen}>Delete Phase</Button>
         <Modal isOpen={isOpen} onClose={onClose} size='lg'>
         <ModalOverlay />
         <ModalContent>
@@ -190,7 +188,7 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
       </Modal>
 
       </Flex>
-        <Text mt='15px' fontSize={{ base: '18px', md: '22px', lg: '30px' }} color="#445069">Selected Phases</Text>
+        <Text mt='20px' p='5px' bg='gray.50' borderRadius='5px' fontSize={{ base: '18px', md: '22px', lg: '30px' }} color="#445069">Selected Phases</Text>
         
         <TableContainer mb='20px'>
             <Table colorScheme='purple'>
@@ -203,29 +201,26 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
                 </Tr>
               </Thead>
 
-              <Tbody>
                   {tableData.map((rowData, index) => (
-                    <Tr key={index}>
-                      <Td>{rowData.name}</Td>
-                      <Td>{rowData.description}</Td>
-                      <Td>{rowData.scope}</Td>
-                      <Td>
-                        {rowData.name !== "" && (
-                          <Button
-                            rightIcon={<SmallCloseIcon />}
-                            size='sm'
-                            colorScheme='red'
-                            variant='outline'
-                            onClick={() => handleRemovePhase(index,rowData.id,rowData.name)}
-                          >
-                            Remove
-                          </Button>
-                        )}
-                      </Td>
-                    </Tr>
-                  ))}
+                  <Tbody  key={rowData.id}>
+                     {rowData.name !== "" && <Tr key={rowData.id}>
+                        <Td>{rowData.name}</Td>
+                        <Td>{rowData.description}</Td>
+                        <Td>{rowData.scope}</Td>
+                        <Td>
+                            <Button
+                              rightIcon={<SmallCloseIcon />}
+                              size='sm'
+                              colorScheme='red'
+                              variant='outline'
+                              onClick={() => handleRemovePhase(index,rowData.id,rowData.name)}
+                            >
+                              Remove
+                            </Button>
+                        </Td>
+                      </Tr>}
                 </Tbody>
-
+                  ))}
             </Table>
           </TableContainer>      
       </Flex>

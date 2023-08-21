@@ -1,20 +1,145 @@
-import { AddIcon, DeleteIcon, RepeatIcon, SmallCloseIcon } from '@chakra-ui/icons'
-import { Box, Button, Flex, FormControl, FormLabel, HStack, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Textarea, Th, Thead, Tr, VStack, useDisclosure } from '@chakra-ui/react'
-import React, { useState } from 'react'
+import { AddIcon, DeleteIcon, RepeatIcon } from '@chakra-ui/icons'
+import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Flex, FormControl, FormLabel, HStack, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Textarea, Th, Thead, Tr, useDisclosure, useToast } from '@chakra-ui/react'
+import React, { useRef, useState } from 'react'
+import axios from 'axios'
 
-const AddPhaseModal = ({tableData,phaseFormData,setPhaseFormData,handleSubmit}) => {
+const AddPhaseModal = ({phase,setPhase,tableData,setTableData,phaseFormData,setPhaseFormData,handleSubmit,fetchDataEffect}) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const toast = useToast();
+  const [formMode, setFormMode] = useState('add');
+  const [phaseIdUpdate,setPhaseIdUpdate] = useState(null);
+  const [phaseIdDelete,setPhaseIdDelete] = useState(null);
+  const [isAlertOpen,setIsAlertOpen] = useState(false);
+  const cancelRef = useRef();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setPhaseFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const submitHandler = ()=>{
-    handleSubmit();
-    onClose();
+  const submitHandler = async ()=>{
+    try {
+      await handleSubmit();
+      setPhaseFormData({
+        name: '',
+        description: '',
+        scope: ''
+      });
+      setPhaseIdUpdate(null);
+      setPhaseIdDelete(null);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
   }
 
+  const updateInitializer = async (rowData)=>{
+    setPhaseFormData({
+      name: rowData.name,
+      description: rowData.description,
+      scope: rowData.scope
+    })
+    setPhaseIdUpdate(rowData._id);
+    setFormMode('update'); 
+  }
+
+  const updateHandler = async()=>{
+    if (!phaseFormData.name || !phaseFormData.description || !phaseFormData.scope) {
+      toast({
+          title: 'Incomplete form.',
+          description: "Please fill complete form.",
+          status: 'error',
+          duration: 4000,
+          isClosable: true,
+        })
+      return;
+    }
+  
+    try {
+      await axios.patch(`http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_phase/${phaseIdUpdate}`, phaseFormData);
+      const updatedPhaseData = phase.map(row => {
+        if (row._id === phaseIdUpdate) {
+          return {
+            ...row,
+            name: phaseFormData.name,
+            description: phaseFormData.description,
+            scope: phaseFormData.scope
+          };
+        }
+        return row;
+      });
+      
+      setPhase(updatedPhaseData);
+      toast({
+          title: 'Phase Updated Successfully.',
+          description: "See the changes on Selected phase table.",
+          status: 'success',
+          duration: 4000,
+          isClosable: true,
+        })
+
+        const updatedTableData = tableData.map(row => {
+          if (row.id === phaseIdUpdate) {
+            return {
+              ...row,
+              name: phaseFormData.name,
+              description: phaseFormData.description,
+              scope: phaseFormData.scope
+            };
+          }
+          return row;
+        });
+        setTableData(updatedTableData);
+
+        setFormMode('add');
+        setPhaseFormData({
+          name: '',
+          description: '',
+          scope: ''
+        });
+
+    } catch (error) {
+      console.error("Error updating phase:", error);
+    }
+  }
+
+  const deleteHandler = async (phaseid) => {
+    try {
+      // Open the confirmation dialog
+      setIsAlertOpen(true);
+      setPhaseIdDelete(phaseid);
+      console.log(phaseid);
+    } catch (error) {
+      console.error("Error deleting phase:", error);
+    }
+  };
+
+  const onAlertClose = () => {
+    setIsAlertOpen(false);
+  };
+
+  const onConfirmDelete = async () => {
+    try {
+      setIsAlertOpen(false); // Close the confirmation dialog
+      await axios.delete(`http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_phase/${phaseIdDelete}`);
+      const updatedPhaseData = phase.filter(row => row._id !== phaseIdDelete);
+      setPhase(updatedPhaseData);
+
+      const updatedTableData = tableData.filter(row => row.id !== phaseIdDelete);
+      setTableData(updatedTableData);
+
+      setFormMode('add');
+      fetchDataEffect();
+      toast({
+        title: 'Phase deleted Successfully.',
+        status: 'success',
+        duration: 4000,
+        isClosable: true,
+      });
+      
+    } catch (error) {
+      console.error("Error deleting phase:", error);
+    }
+  };
 
   return (
     <div>
@@ -65,11 +190,17 @@ const AddPhaseModal = ({tableData,phaseFormData,setPhaseFormData,handleSubmit}) 
                 </FormControl>
 
                 <Box>
-                    <Button size='sm' rightIcon={<AddIcon/>} colorScheme='blue' type='submit' onClick={submitHandler}>Add</Button>
+                  <Button size='sm'
+                    rightIcon={formMode === 'add' ? <AddIcon /> : <RepeatIcon />}
+                    colorScheme={formMode === 'add' ? 'blue' : 'orange'}
+                    onClick={formMode === 'add' ? submitHandler : updateHandler}
+                  >
+                    {formMode === 'add' ? 'Add' : 'Update'}
+                  </Button>
                 </Box>
                 </Flex>
             </form>
-        <Text mt='15px' fontSize={{ base: '18px', md: '22px', lg: '30px' }} color="#445069">Selected Phases</Text>
+        <Text mt='10px' p='5px' bg='gray.50' borderRadius='5px' fontSize={{ base: '18px', md: '22px', lg: '30px' }} color="#445069">Available Phases</Text>
             <TableContainer mt='10px' >
             <Table colorScheme='purple'>
               <Thead>
@@ -80,29 +211,27 @@ const AddPhaseModal = ({tableData,phaseFormData,setPhaseFormData,handleSubmit}) 
                   <Th>Operation</Th> 
                 </Tr>
               </Thead>
+                  {phase.map((rowData, index) => (
+                    <Tbody key={rowData._id}>
+                      {rowData.name !== "" && <Tr key={rowData._id}>
+                        <Td>{rowData.name}</Td>
+                        <Td>{rowData.description}</Td>
+                        <Td>{rowData.scope}</Td>
+                        <Td>
+                            <div>
+                            <Button isDisabled= {formMode==='update'} rightIcon={<RepeatIcon />} size='sm' colorScheme='orange' mr={4} onClick={()=>updateInitializer(rowData)}>
+                              Update
+                            </Button>
 
-              <Tbody>
-                  {tableData.map((rowData, index) => (
-                    <Tr key={index}>
-                      <Td>{rowData.name}</Td>
-                      <Td>{rowData.description}</Td>
-                      <Td>{rowData.scope}</Td>
-                      <Td>
-                        {rowData.name !== "" && (
-                          <div>
-                          <Button rightIcon={<RepeatIcon />} size='sm' colorScheme='orange' mr={4}>
-                            Update
-                          </Button>
-
-                          <Button rightIcon={<DeleteIcon />} size='sm' colorScheme='red'>
-                            Delete
-                          </Button>
-                            </div>
-                        )}
-                      </Td>
-                    </Tr>
+                            <Button rightIcon={<DeleteIcon />} size='sm' colorScheme='red' onClick={()=>deleteHandler(rowData._id)}>
+                              Delete
+                            </Button>
+                              </div>
+                        </Td>
+                      </Tr>
+                      }
+                      </Tbody>
                   ))}
-                </Tbody>
 
             </Table>
           </TableContainer>  
@@ -115,6 +244,32 @@ const AddPhaseModal = ({tableData,phaseFormData,setPhaseFormData,handleSubmit}) 
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+{/* Alert dialog for confirming phase deletion */}
+    <AlertDialog
+        isOpen={isAlertOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={onAlertClose}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Delete Phase
+            </AlertDialogHeader>
+            <AlertDialogBody>
+              Are you sure you want to delete this phase?
+            </AlertDialogBody>
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={onAlertClose}>
+                Cancel
+              </Button>
+              <Button colorScheme="red" onClick={onConfirmDelete} ml={3}>
+                Delete
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </div>
   )
 }
