@@ -28,7 +28,6 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
   const handleSubmit = async () => {
     try{
       const {data} = await axios.post("http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_phase",phaseFormData);
-      console.log(data)
       setPhaseFormSubmitted(true);
       setFormData((prevFormData) => ({
         ...prevFormData,
@@ -190,8 +189,8 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
       </Flex>
         <Text mt='20px' p='5px' bg='gray.50' borderRadius='5px' fontSize={{ base: '18px', md: '22px', lg: '30px' }} color="#445069">Selected Phases</Text>
         
-        <TableContainer mb='20px'>
-            <Table colorScheme='purple'>
+        <TableContainer m='20px'>
+            <Table colorScheme='purple' size='sm'>
               <Thead>
                 <Tr>
                   <Th>Phase</Th>

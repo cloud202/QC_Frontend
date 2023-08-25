@@ -1,6 +1,10 @@
 .header{
-    background: #9FA3FF;
+    background: #131A22;
 }
 .admin-name{
-    color:#0F0E0C;
+    color:#ffffff;
+    margin-right: 10px;
+}
+.admin-email{
+    color:#FFFFFF;
 }

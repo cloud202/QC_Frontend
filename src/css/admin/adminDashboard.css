@@ -1,10 +1,15 @@
 .project-background{
-    background: rgb(247, 245, 255);
+    background: #E7F0EA;
 }
-.step-header{
-    background: #C9BDFF;
+.step-header {
+background: #A9AFAC;
 }
+
 .sub-title{
-    background: #D4D8FF;
+    background: #A9AFAC;
     margin-left:10px;
+}
+.project-title{
+    margin-left: 22px;
+    color: #445069;
 }

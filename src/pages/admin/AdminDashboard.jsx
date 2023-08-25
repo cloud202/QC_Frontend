@@ -1,8 +1,10 @@
 import React from 'react'
-import {Box, Card, CardBody, CardHeader, Divider, Grid, GridItem, SimpleGrid, Table, TableCaption, TableContainer, Tbody, Td, Text, Th, Thead, Tr} from '@chakra-ui/react'
+import {Box, Card, CardBody, CardHeader, Divider, Grid, GridItem, Heading, Image, SimpleGrid, Stack, Table, TableCaption, TableContainer, Tbody, Td, Text, Th, Thead, Tr} from '@chakra-ui/react'
 import { Navbar } from '../../components/admin/Navbar'
 import Sidebar from '../../components/admin/Sidebar'
 import '../../css/admin/adminDashboard.css'
+import step_one from '../../img/admin_steps/2.png'
+
 const AdminDashboard = () => {
   
   return (
@@ -15,43 +17,99 @@ const AdminDashboard = () => {
 
       <GridItem colSpan="5" p='10px' spacing={8} className= "project-background">
         <Box>
-          <Text ml="10px" fontSize={{ base: '18px', md: '22px', lg: '30px' }} color="#445069">How to create Project Template?</Text>
+          <Text className="project-title"  fontSize={{ base: '15px', md: '18px', lg: '22px' }} >Welcome to Qubitz!
+          Define migration and modernization journey for customer</Text>
 
           <SimpleGrid spacing={2} minChildWidth="200px" m="10px">
-            <Card>
-              <CardHeader  fontWeight="500" className="step-header">STEP 1</CardHeader>
-              <Divider borderColor="gray.300"/>
-              <CardBody fontSize='md' justifyContent="center" alignItems="center">Define Project Scope</CardBody>
-            </Card>
+          <Card maxW='sm'>
+            <CardBody>
+            <Image
+                src='https://assets.materialup.com/uploads/4554dde7-42b0-46e8-a8f6-0f112ff4ce34/preview.jpg'
+                borderRadius='lg'
+                border='1px solid'
+                borderColor='gray.400'
+              />
+              <Stack mt='6' spacing='3'>
+                <Heading size='md'>Step 1</Heading>
+                <Text>
+                  Define Project Scope
+                </Text>
+              </Stack>
+            </CardBody>
+          </Card>
 
-            <Card>
-            <CardHeader  fontWeight="500" className="step-header">STEP 2</CardHeader>
-              <Divider borderColor="gray.300"/>
-              <CardBody fontSize='md'>Create Project Phases</CardBody>
-            </Card>
+          <Card maxW='sm'>
+            <CardBody>
+              <Image
+                src={step_one}
+                borderRadius='lg'
+                border='1px solid'
+                borderColor='gray.400'
+              />
+              <Stack mt='6' spacing='3'>
+                <Heading size='md'>Step 2</Heading>
+                <Text>
+                  Create Project Phase
+                </Text>
+              </Stack>
+            </CardBody>
+          </Card>
 
-            <Card>
-            <CardHeader  fontWeight="500" className="step-header">STEP 3</CardHeader>
-              <Divider borderColor="gray.300"/>
-              <CardBody fontSize='md'>Define Modules with each Project Phases</CardBody>
-            </Card>
+          <Card maxW='sm'>
+            <CardBody>
+              <Image
+                src='https://assets.materialup.com/uploads/4554dde7-42b0-46e8-a8f6-0f112ff4ce34/preview.jpg'
+                borderRadius='lg'
+                border='1px solid'
+                borderColor='gray.400'
+              />
+              <Stack mt='6' spacing='3'>
+                <Heading size='md'>Step 3</Heading>
+                <Text>
+                 Define Modules with each Project Phases
+                </Text>
+              </Stack>
+            </CardBody>
+          </Card>
 
-            <Card>
-            <CardHeader  fontWeight="500" className="step-header">STEP 4</CardHeader>
-              <Divider borderColor="gray.300"/>
-              <CardBody fontSize='md'>Create Task and Sub-Task with each Modules</CardBody>
-            </Card>
+          <Card maxW='sm'>
+            <CardBody>
+              <Image
+                src='https://assets.materialup.com/uploads/4554dde7-42b0-46e8-a8f6-0f112ff4ce34/preview.jpg'
+                borderRadius='lg'
+                border='1px solid'
+                borderColor='gray.400'
+              />
+              <Stack mt='6' spacing='3'>
+                <Heading size='md'>Step 4</Heading>
+                <Text>
+                Create Task and Sub-Task with each Modules
+                </Text>
+              </Stack>
+            </CardBody>
+          </Card>
 
-            <Card>
-            <CardHeader  fontWeight="500" className="step-header">STEP 5</CardHeader>
-              <Divider borderColor="gray.300"/>
-              <CardBody fontSize='md' >Integrate task with respective automated solution via API connect</CardBody>
-            </Card>
+          <Card maxW='sm'>
+            <CardBody>
+            <Image
+                src='https://assets.materialup.com/uploads/4554dde7-42b0-46e8-a8f6-0f112ff4ce34/preview.jpg'
+                borderRadius='lg'
+                border='1px solid'
+                borderColor='gray.400'
+              />
+              <Stack mt='6' spacing='3'>
+                <Heading size='md'>Step 5</Heading>
+                <Text>
+                Integrate task with respective automated solution via API connect
+                </Text>
+              </Stack>
+            </CardBody>
+          </Card>
           </SimpleGrid>
         </Box>
 
         <Box>
-          <Text className='sub-title' fontSize={{ base: '18px', md: '22px', lg: '30px' }} >Existing Project Template</Text>
+          <Text className='sub-title' fontSize={{ base: '15px', md: '18px', lg: '22px' }} >Existing Project Template</Text>
 
           <TableContainer mt='10px'>
             <Table variant='simple'>

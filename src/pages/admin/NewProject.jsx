@@ -6,6 +6,8 @@ import { ArrowBackIcon, ArrowForwardIcon, CheckIcon } from '@chakra-ui/icons'
 import DefineProject from '../../components/admin/newProject/DefineProject';
 import { SelectPhase } from '../../components/admin/newProject/SelectPhase'
 import AttachModule from '../../components/admin/newProject/AttachModule'
+import AttachTask from '../../components/admin/newProject/AttachTask'
+import Submit from '../../components/admin/newProject/Submit'
 
 const NewProject = () => {
   const [currPage,setCurrPage] = useState(1);
@@ -15,11 +17,9 @@ const NewProject = () => {
     segment: "Select an option",
     industry: "Select an option",
     useCase: "",
-    phase: []
+    phase: [],
+    modules: [],
   })
-  setTimeout(() => {
-    console.log(formData)
-  }, 9000);
 
   const [tableData, setTableData] = useState([{
     name: "",
@@ -28,6 +28,9 @@ const NewProject = () => {
     id: ""
   }]);
 
+  const [attachedModules, setAttachedModules] = useState({});
+  const [attachedTasks, setAttachedTasks] = useState({});
+
   const handlePrevious = ()=>{
     setCurrPage(currPage-1);
   }
@@ -35,9 +38,7 @@ const NewProject = () => {
   const handleNext =()=>{
     if(currPage!==5){
       setCurrPage(currPage+1);
-    }
-      //logic for subit form here
-    
+    }   
   }
   
   return (
@@ -49,18 +50,22 @@ const NewProject = () => {
       </GridItem>
 
       <GridItem colSpan="5" ml="30px" mt="30px">
+
         <Progress value={100/5 * currPage} size='md' colorScheme='green' mb='10px' w='680px'/>
+
         { currPage===1 && <DefineProject formData={formData} setFormData={setFormData} />}
         { currPage===2 && <SelectPhase formData={formData} setFormData={setFormData} tableData={tableData} setTableData={setTableData}/>}
-        { currPage===3 && <AttachModule/>}
-        { currPage===4 && <AttachModule/>}
-        { currPage===5 && <AttachModule/>}
-        <Flex w="680px" justifyContent="space-between" alignItems="center">
+        { currPage===3 && <AttachModule formData={formData} setFormData={setFormData} tableData={tableData} attachedModules={attachedModules} setAttachedModules={setAttachedModules}/>}
+        { currPage===4 && <AttachTask formData={formData} setFormData={setFormData} attachedTasks={attachedTasks} setAttachedTasks={setAttachedTasks}/>}
+        { currPage===5 && <Submit/>}
+
+        <Flex w="680px" justifyContent="space-between" alignItems="center" mt='10px'>
           <Button isDisabled={currPage===1} leftIcon={<ArrowBackIcon />} onClick={handlePrevious}colorScheme='purple' variant='outline' >Previous</Button>
           <Button rightIcon={currPage!==5?<ArrowForwardIcon/>:<CheckIcon/>} onClick={handleNext} colorScheme='purple' variant='outline' >{
             currPage!==5?"Next":"Submit"
           }</Button>
         </Flex> 
+
     </GridItem>
     </Grid>
     </>
