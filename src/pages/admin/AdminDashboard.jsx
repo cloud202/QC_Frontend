@@ -3,7 +3,7 @@ import {Box, Card, CardBody, CardHeader, Divider, Grid, GridItem, Heading, Image
 import { Navbar } from '../../components/admin/Navbar'
 import Sidebar from '../../components/admin/Sidebar'
 import '../../css/admin/adminDashboard.css'
-import step_one from '../../img/admin_steps/2.png'
+import step_one from '../../img/admin_steps/1.png'
 
 const AdminDashboard = () => {
   
@@ -17,27 +17,29 @@ const AdminDashboard = () => {
 
       <GridItem colSpan="5" p='10px' spacing={8} className= "project-background">
         <Box>
-          <Text className="project-title"  fontSize={{ base: '15px', md: '18px', lg: '22px' }} >Welcome to Qubitz!
-          Define migration and modernization journey for customer</Text>
+        <Text className='sub-title' fontSize={{ base: '15px', md: '18px', lg: '22px' }} >Welcome to Qubitz! Define migration and modernization journey for customer</Text>
 
-          <SimpleGrid spacing={2} minChildWidth="200px" m="10px">
-          <Card maxW='sm'>
-            <CardBody>
-            <Image
-                src='https://assets.materialup.com/uploads/4554dde7-42b0-46e8-a8f6-0f112ff4ce34/preview.jpg'
+          <Image 
+                src={step_one}
                 borderRadius='lg'
                 border='1px solid'
-                borderColor='gray.400'
+                borderColor='grey'
+                marginLeft='12px'
               />
-              <Stack mt='6' spacing='3'>
+
+          {/* <SimpleGrid  >
+          <Card maxW='sm'>
+            <CardBody> */}
+            
+             {/*  <Stack mt='6' spacing='3'>
                 <Heading size='md'>Step 1</Heading>
                 <Text>
                   Define Project Scope
                 </Text>
-              </Stack>
-            </CardBody>
-          </Card>
-
+              </Stack> */}
+          {/*   </CardBody>
+          </Card> */}
+{/* 
           <Card maxW='sm'>
             <CardBody>
               <Image
@@ -104,16 +106,16 @@ const AdminDashboard = () => {
                 </Text>
               </Stack>
             </CardBody>
-          </Card>
-          </SimpleGrid>
+          </Card> */}
+        {/*   </SimpleGrid> */}
         </Box>
 
         <Box>
-          <Text className='sub-title' fontSize={{ base: '15px', md: '18px', lg: '22px' }} >Existing Project Template</Text>
+          <Text className='sub-title' fontSize={{ base: '15px', md: '18px', lg: '22px' }} >Available Project Templates</Text>
 
           <TableContainer mt='10px'>
             <Table variant='simple'>
-              <TableCaption>"Seamlessly utilize pre-existing templates without any inconvenience."</TableCaption>
+              {/* <TableCaption>"Seamlessly utilize pre-existing templates without any inconvenience."</TableCaption> */}
               <Thead>
                 <Tr>
                   <Th>ID</Th>

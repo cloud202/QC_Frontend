@@ -1,5 +1,5 @@
 .header{
-    background: #131A22;
+    background: #04373A;
 }
 .admin-name{
     color:#ffffff;
@@ -7,4 +7,9 @@
 }
 .admin-email{
     color:#FFFFFF;
+}
+.project-icon{
+    margin-top: 10px;
+    margin-left: 20px;
+    color: #fffafa; 
 }
