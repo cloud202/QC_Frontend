@@ -4,6 +4,7 @@ import { Navbar } from '../../components/admin/Navbar'
 import Sidebar from '../../components/admin/Sidebar'
 import '../../css/admin/adminDashboard.css'
 import step_one from '../../img/admin_steps/1.png'
+import Footer from '../../components/global/Footer'
 
 const AdminDashboard = () => {
   
@@ -11,111 +12,26 @@ const AdminDashboard = () => {
     <>
     <Navbar/>
     <Grid templateColumns="repeat(6,1fr)">
-      <GridItem colSpan="1">
-        <Sidebar/>
+      <GridItem colSpan={{lg: '1' }}>
+        <Box w={{ base: 'none',sm: 'none', md: 'none', lg: '230px' }}>
+          <Sidebar/>
+        </Box>
       </GridItem>
 
-      <GridItem colSpan="5" p='10px' spacing={8} className= "project-background">
-        <Box>
-        <Text className='sub-title' fontSize={{ base: '15px', md: '18px', lg: '22px' }} >Welcome to Qubitz! Define migration and modernization journey for customer</Text>
-
+      <GridItem colSpan={{base: '6', sm: '6', md: '6',lg: '5' }} className= "project-background" >
+        <Box className='dashboard-shadow' display='flex' flexDirection='column' alignItems='center' justifyContent='center' textAlign='center' mt={{base: '32px',lg: '6px'}} mb={{base: '22px'}}>
+        <Text className='sub-title' fontSize={{ base: '14px',sm: '20px', md: '24px', lg: '28px' }} fontWeight={400} >Welcome to Qubitz! Define migration and modernization journey for customer</Text>
           <Image 
                 src={step_one}
-                borderRadius='lg'
-                border='1px solid'
-                borderColor='grey'
-                marginLeft='12px'
+                w={{ base: '100%', lg: '80%' }}
               />
-
-          {/* <SimpleGrid  >
-          <Card maxW='sm'>
-            <CardBody> */}
-            
-             {/*  <Stack mt='6' spacing='3'>
-                <Heading size='md'>Step 1</Heading>
-                <Text>
-                  Define Project Scope
-                </Text>
-              </Stack> */}
-          {/*   </CardBody>
-          </Card> */}
-{/* 
-          <Card maxW='sm'>
-            <CardBody>
-              <Image
-                src={step_one}
-                borderRadius='lg'
-                border='1px solid'
-                borderColor='gray.400'
-              />
-              <Stack mt='6' spacing='3'>
-                <Heading size='md'>Step 2</Heading>
-                <Text>
-                  Create Project Phase
-                </Text>
-              </Stack>
-            </CardBody>
-          </Card>
-
-          <Card maxW='sm'>
-            <CardBody>
-              <Image
-                src='https://assets.materialup.com/uploads/4554dde7-42b0-46e8-a8f6-0f112ff4ce34/preview.jpg'
-                borderRadius='lg'
-                border='1px solid'
-                borderColor='gray.400'
-              />
-              <Stack mt='6' spacing='3'>
-                <Heading size='md'>Step 3</Heading>
-                <Text>
-                 Define Modules with each Project Phases
-                </Text>
-              </Stack>
-            </CardBody>
-          </Card>
-
-          <Card maxW='sm'>
-            <CardBody>
-              <Image
-                src='https://assets.materialup.com/uploads/4554dde7-42b0-46e8-a8f6-0f112ff4ce34/preview.jpg'
-                borderRadius='lg'
-                border='1px solid'
-                borderColor='gray.400'
-              />
-              <Stack mt='6' spacing='3'>
-                <Heading size='md'>Step 4</Heading>
-                <Text>
-                Create Task and Sub-Task with each Modules
-                </Text>
-              </Stack>
-            </CardBody>
-          </Card>
-
-          <Card maxW='sm'>
-            <CardBody>
-            <Image
-                src='https://assets.materialup.com/uploads/4554dde7-42b0-46e8-a8f6-0f112ff4ce34/preview.jpg'
-                borderRadius='lg'
-                border='1px solid'
-                borderColor='gray.400'
-              />
-              <Stack mt='6' spacing='3'>
-                <Heading size='md'>Step 5</Heading>
-                <Text>
-                Integrate task with respective automated solution via API connect
-                </Text>
-              </Stack>
-            </CardBody>
-          </Card> */}
-        {/*   </SimpleGrid> */}
         </Box>
 
-        <Box>
-          <Text className='sub-title' fontSize={{ base: '15px', md: '18px', lg: '22px' }} >Available Project Templates</Text>
-
-          <TableContainer mt='10px'>
-            <Table variant='simple'>
-              {/* <TableCaption>"Seamlessly utilize pre-existing templates without any inconvenience."</TableCaption> */}
+        <Box className='dashboard-shadow' p={{ base: '6px',sm: '6px', md: '6px', lg: '2px' }} m='14px' >
+          <Text className='sub-title' fontSize={{ base: '16px', md: '20px', lg: '22px' }}  mt={{ base: '6px',sm: '6px', md: '6px', lg: '12px' }} >Available Project Templates</Text>
+          <TableContainer>
+            <Table variant='simple' size={{ base: 'sm', md: 'sm', lg: 'md' }} mt='6px'>
+              <TableCaption>"Seamlessly utilize pre-existing templates without any inconvenience."</TableCaption>
               <Thead>
                 <Tr>
                   <Th>ID</Th>
@@ -149,16 +65,24 @@ const AdminDashboard = () => {
                   <Td>Startup</Td>
                   <Td>FSI</Td>
                 </Tr>
+                <Tr>
+                  <Td>Qc-34</Td>
+                  <Td>Microsoft workload</Td>
+                  <Td>Mordernize</Td>
+                  <Td>Startup</Td>
+                  <Td>FSI</Td>
+                </Tr>
                 
                 
               </Tbody>
             </Table>
           </TableContainer>
         </Box>
+
       </GridItem>
-
-
     </Grid>
+
+    
     </>
   )
 }

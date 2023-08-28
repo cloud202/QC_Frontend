@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Navbar } from '../../components/admin/Navbar'
 import Sidebar from '../../components/admin/Sidebar'
-import { Grid, GridItem, Button, Flex, Progress } from '@chakra-ui/react'
+import { Grid, GridItem, Button, Flex, Progress, Box } from '@chakra-ui/react'
 import { ArrowBackIcon, ArrowForwardIcon, CheckIcon } from '@chakra-ui/icons'
 import DefineProject from '../../components/admin/newProject/DefineProject';
 import { SelectPhase } from '../../components/admin/newProject/SelectPhase'
@@ -46,12 +46,13 @@ const NewProject = () => {
     <Navbar/>
     <Grid templateColumns="repeat(6,1fr)">
       <GridItem colSpan="1">
-        <Sidebar/>
+      <Box w={{ base: 'none',sm: 'none', md: 'none', lg: '230px' }}>
+          <Sidebar/>
+        </Box>
       </GridItem>
 
-      <GridItem colSpan="5" ml="30px" mt="30px">
-
-        <Progress value={100/5 * currPage} size='md' colorScheme='green' mb='10px' w='680px'/>
+      <GridItem colSpan={{base: '6', sm: '6', md: '6',lg: '5' }} m="30px">
+        <Progress value={100/5 * currPage} size='md' colorScheme='green' mb='10px' maxW='680px'/>
 
         { currPage===1 && <DefineProject formData={formData} setFormData={setFormData} />}
         { currPage===2 && <SelectPhase formData={formData} setFormData={setFormData} tableData={tableData} setTableData={setTableData}/>}
@@ -59,7 +60,7 @@ const NewProject = () => {
         { currPage===4 && <AttachTask formData={formData} setFormData={setFormData} attachedTasks={attachedTasks} setAttachedTasks={setAttachedTasks}/>}
         { currPage===5 && <Submit/>}
 
-        <Flex w="680px" justifyContent="space-between" alignItems="center" mt='10px'>
+        <Flex maxW="680px" justifyContent="space-between" alignItems="center" mt='10px'>
           <Button isDisabled={currPage===1} leftIcon={<ArrowBackIcon />} onClick={handlePrevious}colorScheme='purple' variant='outline' >Previous</Button>
           <Button rightIcon={currPage!==5?<ArrowForwardIcon/>:<CheckIcon/>} onClick={handleNext} colorScheme='purple' variant='outline' >{
             currPage!==5?"Next":"Submit"
