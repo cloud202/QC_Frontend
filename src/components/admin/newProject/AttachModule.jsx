@@ -98,7 +98,7 @@ export const AttachModule = ({ formData,setFormData,tableData,attachedModules, s
 
   return (
     <Flex direction="column" maxW="680px">
-      <Text m='20px' p='5px' bg='gray.50' borderRadius='5px' fontSize={{ base: '18px', md: '22px', lg: '30px' }} color="#445069">Attach Modules with selected phases</Text>
+      <Text mb='10px' p='5px' bg='gray.50' borderRadius='5px' fontSize={{ base: '15px', sm: '26px',md: '30px', lg: '30px' }} color="#445069">Attach Modules with selected phases</Text>
 
       <Flex align="center" mb="20px">
         <FormLabel flex="1">Attach To:</FormLabel>
