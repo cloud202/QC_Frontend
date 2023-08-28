@@ -3,22 +3,20 @@ import qcLogo from '../../img/black_qubitz.png'
 import React, { useState } from 'react';
 import '../../css/admin/navbar.css'
 import { ChevronDownIcon, EmailIcon } from '@chakra-ui/icons';
+import { Link } from 'react-router-dom';
 
 export const Navbar = () => {
 
   return (
-    <Flex  className='header' color='whiteAlpha.800' as="nav" p="10px" borderBottom="1px solid" borderColor="gray.400" alignItems="center" gap="8px" h="50px" position="sticky" top="0" zIndex={3}>
-        <Box h="45px" w="120px" borderRadius="5px">
-          {/* <Image objectFit='cover' src={qcLogo}/> */}
+    <Flex  className='header' color='whiteAlpha.800' as="nav" p="10px" alignItems="center" gap="8px" h="55px" position="sticky" top="0" zIndex={3}>
+        {/* <Box h="45px" w="120px" borderRadius="5px">
+          <Image objectFit='cover' src={qcLogo}/>
           <Heading size='md'className='project-icon'>Qubitz</Heading>
-        </Box>
-        {/* <Heading size='md' as='h3' color='whiteAlpha.800'>Qubitz</Heading> */}
-
+        </Box> */}
+        <Link to='/admin'>
+          <Heading ml={{base: '35px',lg: '15px'}} size='lg' as='h3' color='#f7f7f7'>Qubitz</Heading> 
+        </Link>
         <Spacer/>
-
-        {/* <Box  className='admin-name' ></Box>
-        <Text className='admin-email'>Ashish Pandey</Text>
-        <Button variant='ghost' colorScheme='white'>LogOut</Button> */}
 
         <Menu bg='gray.400'>
             <MenuButton
