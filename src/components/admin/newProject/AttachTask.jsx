@@ -4,6 +4,7 @@ import {Box,Button,Checkbox,Flex,FormLabel,HStack,Menu,MenuButton,MenuList,MenuI
 } from '@chakra-ui/react';
 import { ChevronDownIcon, SmallCloseIcon } from '@chakra-ui/icons';
 import AddTaskModal from './AddTaskModal';
+import AddSolutionModal from './AddSolutionModal';
 
 export const AttachTask = ({formData,setFormData,attachedTasks, setAttachedTasks }) => {
   const [task,setTask] = useState([]);
@@ -105,7 +106,10 @@ export const AttachTask = ({formData,setFormData,attachedTasks, setAttachedTasks
           </MenuList>
         </Menu>
       </Flex>
-      <AddTaskModal task={task} setTask={setTask} taskFormData={taskFormData} setTaskFormData={setTaskFormData}/>
+      <HStack>
+        <AddTaskModal task={task} setTask={setTask} taskFormData={taskFormData} setTaskFormData={setTaskFormData}/>
+        <AddSolutionModal/>
+      </HStack>
       <Box mt='20px' p='5px' bg='gray.50' borderRadius='5px' fontSize={{ base: '18px', md: '22px', lg: '30px' }} color="#445069">
         Attached Tasks
       </Box>
