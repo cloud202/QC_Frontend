@@ -4,7 +4,6 @@ import { Navbar } from '../../components/admin/Navbar'
 import Sidebar from '../../components/admin/Sidebar'
 import '../../css/admin/adminDashboard.css'
 import step_one from '../../img/admin_steps/1.png'
-import Footer from '../../components/global/Footer'
 
 const AdminDashboard = () => {
   

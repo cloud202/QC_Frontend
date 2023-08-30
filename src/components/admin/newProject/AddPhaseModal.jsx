@@ -202,7 +202,7 @@ const AddPhaseModal = ({phase,setPhase,tableData,setTableData,phaseFormData,setP
             </form>
         <Text mt='10px' p='5px' bg='gray.50' borderRadius='5px' fontSize={{ base: '18px', md: '22px', lg: '30px' }} color="#445069">Available Phases</Text>
             <TableContainer mt='10px' >
-            <Table colorScheme='purple'>
+            <Table colorScheme='purple' size='sm'>
               <Thead>
                 <Tr>
                   <Th>Phase</Th>
