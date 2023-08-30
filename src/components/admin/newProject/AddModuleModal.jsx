@@ -85,19 +85,6 @@ const AddModuleModal = ({module,setModule,moduleFormData,setModuleFormData, hand
           isClosable: true,
         })
 
-        // const updatedTableData = tableData.map(row => {
-        //   if (row.id === phaseIdUpdate) {
-        //     return {
-        //       ...row,
-        //       name: phaseFormData.name,
-        //       description: phaseFormData.description,
-        //       scope: phaseFormData.scope
-        //     };
-        //   }
-        //   return row;
-        // });
-        // setTableData(updatedTableData);
-
         setFormMode('add');
         setModuleFormData({
           name: '',
