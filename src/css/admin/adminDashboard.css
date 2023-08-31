@@ -18,9 +18,8 @@ background: #A9AFAC;
 }
 
 .dashboard-shadow{
-    /* border: 2px solid rgb(219, 219, 219); */
     border-radius: 10px;
-    margin: 6px 14px 4px 14px;
+    /* margin: 6px 14px 4px 14px; */
     -webkit-box-shadow: 4px 4px 10px -3px rgba(0,0,0,0.45);
     -moz-box-shadow: 4px 4px 10px -3px rgba(0,0,0,0.45);
     box-shadow: 4px 4px 10px -3px rgba(0,0,0,0.45);
