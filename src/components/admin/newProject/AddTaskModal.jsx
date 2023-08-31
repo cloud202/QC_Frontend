@@ -1,14 +1,18 @@
-import { AddIcon, DeleteIcon, RepeatIcon } from '@chakra-ui/icons'
-import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Flex, FormControl, FormLabel, HStack, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Textarea, Th, Thead, Tr, useDisclosure, useToast } from '@chakra-ui/react'
+import { AddIcon, ChevronDownIcon, DeleteIcon, RepeatIcon } from '@chakra-ui/icons'
+import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Flex, FormControl, FormLabel, HStack, Input, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Tab, TabList, TabPanel, TabPanels, Table, TableContainer, Tabs, Tbody, Td, Text, Textarea, Th, Thead, Tr, useDisclosure, useToast } from '@chakra-ui/react'
 import React, { useRef, useState } from 'react'
 import axios from 'axios'
 
-const AddModuleModal = ({task,setTask,taskFormData, setTaskFormData}) => {
+const AddModuleModal = ({solution,task,setTask,taskFormData, setTaskFormData}) => {
     const { isOpen, onOpen, onClose } = useDisclosure()
   const [formMode, setFormMode] = useState('add');
   const toast = useToast();
   const [isAlertOpen,setIsAlertOpen] = useState(false);
+  const [taskType,setTaskType] = useState("Select an option");
   const cancelRef = useRef();
+  const [selectedSol,setSelectedSol] = useState("Select an option");
+  const [selectedAct, setSelectedAct] = useState("Select an option");
+  const [selectedActions, setSelectedActions] = useState([]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -55,6 +59,11 @@ const AddModuleModal = ({task,setTask,taskFormData, setTaskFormData}) => {
     setIsAlertOpen(false);
   };
 
+  const handleSolutionSelect = (name, allActions) => {
+    setSelectedSol(name);
+    setSelectedActions(allActions);
+    setSelectedAct("Select an option");
+  };
   
   return (
     <div>
@@ -67,8 +76,7 @@ const AddModuleModal = ({task,setTask,taskFormData, setTaskFormData}) => {
           <ModalBody>
           <Box p={4}>
             <form>
-              <Flex gap={2}>
-
+              <Flex gap={4}>
                 <FormControl isRequired>
                 <HStack align='start' spacing={0}>
                   <FormLabel>Name</FormLabel>
@@ -83,26 +91,19 @@ const AddModuleModal = ({task,setTask,taskFormData, setTaskFormData}) => {
 
                 <FormControl isRequired>
                 <HStack align='start' spacing={0}>
-                  <FormLabel>Description</FormLabel>
-                  <Textarea
-                    name="description"
-                    value={taskFormData.description}
-                    onChange={handleInputChange}
-                    />
+                  <FormLabel>Type</FormLabel>
+                  <Menu>
+                    <MenuButton w="80%" as={Button} variant="outline" colorScheme="gray" rightIcon={<ChevronDownIcon />}>
+                      {taskType}
+                    </MenuButton>
+                    <MenuList>
+                        <MenuItem onClick={() => setTaskType("Standard")}>Standard</MenuItem>
+                        <MenuItem onClick={() => setTaskType("Custom")}>Custom</MenuItem>
+                    </MenuList>
+                  </Menu>
                     </HStack>
                 </FormControl>
 
-                <FormControl isRequired>
-                <HStack align='start' spacing={0}>
-                  <FormLabel>Scope</FormLabel>
-                  <Input
-                    type="text"
-                    name="scope"
-                    value={taskFormData.scope}
-                    onChange={handleInputChange}
-                    />
-                    </HStack>
-                </FormControl>
 
                 <Box>
                   <Button size='sm'
@@ -114,6 +115,76 @@ const AddModuleModal = ({task,setTask,taskFormData, setTaskFormData}) => {
                   </Button>
                 </Box>
                 </Flex>
+                
+                <Box mt='12px'>
+                <Tabs>
+                <TabList>
+                  <Tab isDisabled={taskType==="Select an option" || taskType!=="Standard"}>Standard</Tab>
+                  <Tab isDisabled={taskType==="Select an option" || taskType!=="Custom"}>Custom</Tab>
+                </TabList>
+                <TabPanels>
+                  <TabPanel>
+                      <Flex mb='12px'>
+                      <FormControl isRequired>
+                        <HStack align='start' spacing={0}>
+                        <FormLabel>Solution</FormLabel>
+                        <Menu >
+                          <MenuButton w="80%" as={Button} variant="outline" colorScheme="gray" rightIcon={<ChevronDownIcon />} >
+                            {selectedSol}
+                          </MenuButton>
+                          <MenuList>
+                              {
+                                solution && solution.map((val)=> <MenuItem key={val._id} onClick={()=>handleSolutionSelect(val.name,val.allActions)}>{val.name}</MenuItem>)
+                              }
+                          </MenuList>
+                        </Menu>
+                        </HStack>
+                      </FormControl>
+                      </Flex>
+
+                      <FormControl isRequired>
+                        <HStack align="start" spacing={0}>
+                          <FormLabel>Action</FormLabel>
+                          <Menu>
+                            <MenuButton
+                              w="80%"
+                              as={Button}
+                              variant="outline"
+                              colorScheme="gray"
+                              rightIcon={<ChevronDownIcon />}
+                            >
+                              {selectedAct}
+                            </MenuButton>
+                            <MenuList>
+                              {selectedActions.map((act) => (
+                                <MenuItem key={act._id} onClick={()=>setSelectedAct(act.action)}>{act.action}</MenuItem>
+                              ))}
+                            </MenuList>
+                          </Menu>
+                        </HStack>
+                      </FormControl>
+                    
+                  </TabPanel>
+                  <TabPanel>
+                  <FormControl isRequired mb='15px'>
+                      <HStack align='start' spacing={0}>
+                      <FormLabel>Action Name</FormLabel>
+                      <Input w="80%" type="text" placeholder="Enter the action name"/>
+                      </HStack>
+                    </FormControl>
+
+                    <FormControl isRequired>
+                      <HStack align='start' spacing={0}>
+                      <FormLabel>Script</FormLabel>
+                      <Textarea w="85%" placeholder="Enter the script"/>
+                      </HStack>
+                    </FormControl>
+                  </TabPanel>
+                </TabPanels>
+              </Tabs>
+                </Box>
+
+              
             </form>
 
             <Text mt='10px' p='5px' bg='gray.50' borderRadius='5px' fontSize={{ base: '18px', md: '22px', lg: '30px' }} color="#445069">Available Tasks</Text>

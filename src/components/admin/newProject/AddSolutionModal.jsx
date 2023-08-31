@@ -3,13 +3,12 @@ import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, Al
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import axios from 'axios'
 
-const AddSolutionModal = () => {
+const AddSolutionModal = ({solution,setSolution}) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [formMode, setFormMode] = useState('add');
   const [actionCount,setActionCount] = useState(1);
   const [actionApiPairs, setActionApiPairs] = useState([{ action: '', api: '' }]);
   const [solname,setSolName] = useState("");
-  const [solution,setSolution] = useState(null);
   const [solIdDelete,setSolIdDelete] = useState(null);
   const [solIdUpdate,setSolIdUpdate] = useState(null);
 
@@ -150,19 +149,6 @@ const AddSolutionModal = () => {
       });
     }
   }
-
-  const fetchDataEffect = useCallback(async () => {
-    try {
-      const sol = await axios.get("http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_solution");
-      setSolution(sol.data);
-    } catch (error) {
-      console.error("Error fetching solution data:", error);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchDataEffect();
-  }, [fetchDataEffect]);
 
   
   return (
