@@ -10,6 +10,8 @@ export const AttachTask = ({formData,setFormData,attachedTasks, setAttachedTasks
   const [task,setTask] = useState([]);
   const [selectedModule,setSelectedModule] = useState(null);
   const [checkedTask, setCheckedTask] = useState([]);
+  const [solution,setSolution] = useState(null);
+
 
   const [taskFormData, setTaskFormData] = useState({
     name: "",
@@ -41,7 +43,16 @@ export const AttachTask = ({formData,setFormData,attachedTasks, setAttachedTasks
     console.log(formData.modules);
   };
 
-  const fetchDataEffect = useCallback(async () => {
+  const fetchSolDataEffect = useCallback(async () => {
+    try {
+      const sol = await axios.get("http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_solution");
+      setSolution(sol.data);
+    } catch (error) {
+      console.error("Error fetching solution data:", error);
+    }
+  }, []);
+
+  const fetchTaskDataEffect = useCallback(async () => {
     try {
       const tasks = await axios.get("http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_task");
       setTask(tasks.data);
@@ -51,8 +62,9 @@ export const AttachTask = ({formData,setFormData,attachedTasks, setAttachedTasks
   }, []);
 
   useEffect(() => {
-    fetchDataEffect();
-  }, [fetchDataEffect]);
+    fetchTaskDataEffect();
+    fetchSolDataEffect();
+  }, [fetchSolDataEffect,fetchTaskDataEffect]);
 
 
   return (
@@ -107,8 +119,8 @@ export const AttachTask = ({formData,setFormData,attachedTasks, setAttachedTasks
         </Menu>
       </Flex>
       <HStack>
-        <AddTaskModal task={task} setTask={setTask} taskFormData={taskFormData} setTaskFormData={setTaskFormData}/>
-        <AddSolutionModal/>
+        <AddTaskModal solution={solution} task={task} setTask={setTask} taskFormData={taskFormData} setTaskFormData={setTaskFormData}/>
+        <AddSolutionModal solution={solution} setSolution={setSolution}/>
       </HStack>
       <Box mt='20px' p='5px' bg='gray.50' borderRadius='5px' fontSize={{ base: '18px', md: '22px', lg: '30px' }} color="#445069">
         Attached Tasks
