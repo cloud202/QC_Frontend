@@ -14,7 +14,6 @@ export const AttachModule = ({ formData,setFormData,tableData,attachedModules, s
     name: "",
     description: "",
     scope: "",
-    supportive_id: "temporary",
     status: true,
   });
 
@@ -46,7 +45,6 @@ export const AttachModule = ({ formData,setFormData,tableData,attachedModules, s
       return prevFormData;
     });
     
-    console.log(formData.modules);
   };
 
    const handlePhaseSelect = (phaseId) => {

@@ -1,4 +1,4 @@
-import {  Box, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay, IconButton, List, ListIcon, ListItem, Text, useBreakpointValue, useDisclosure } from '@chakra-ui/react'
+import {  Box, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay, IconButton, List, ListIcon, ListItem, useBreakpointValue, useDisclosure } from '@chakra-ui/react'
 import { CalendarIcon, ExternalLinkIcon, HamburgerIcon, PlusSquareIcon, ViewIcon } from '@chakra-ui/icons'
 import React from 'react'
 import { Link ,useLocation} from 'react-router-dom'
@@ -7,18 +7,12 @@ const Sidebar = () => {
     const location = useLocation();
     const { isOpen, onOpen, onClose } = useDisclosure();
 
-    const commonStyles = {
-        bg: "#04373A",
-        cursor: "pointer",
-        borderRadius: "5px"
-      };
-
       const sidebarItems = [
         { label: "New Project Template", route: "/admin/newproject",icon: PlusSquareIcon },
         { label: "View/Update Phases", route: "/admin/phase",icon: ViewIcon },
         { label: "View/Update Modules", route: "/admin/module",icon: ViewIcon },
         { label: "View/Update Task", route: "/admin/task",icon: ViewIcon },
-        { label: "3rd Party Solution", route: "/admin/soltuion",icon: ExternalLinkIcon },
+        { label: "3rd Party Solution", route: "/admin/solution",icon: ExternalLinkIcon },
         { label: "List Customers", route: "/admin/customer",icon: CalendarIcon },
       ];
 
@@ -26,7 +20,7 @@ const Sidebar = () => {
 
       if (showSidebar) {
         return (
-          <List bg="#546269" position="fixed" minH="100vh" p="20px" alignItems="center">
+          <List bg="#546269" position="fixed" minH="100vh" p="20px" alignItems="center" >
             {sidebarItems.map((item, index) => (
               <Link to={item.route} key={index}>
                 <ListItem mb="15px" p="5px" color={location.pathname === item.route ? "#ffca39" : "#FFFFFF"} _hover={{borderRadius:'8px', backgroundColor: "#e6b01aa8" }}>

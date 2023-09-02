@@ -105,10 +105,10 @@ const AddSolutionModal = ({solution,setSolution}) => {
 
   const updateInitializer = async (rowData)=>{
     setFormMode('update'); 
-
-
     setSolName(rowData.name);
     setActionApiPairs(rowData.allActions.map(action => ({ action: action.action, api: action.api })));
+    setActionCount(rowData.allActions.length);
+    
   }
 
   const updateHandler = async()=>{
@@ -131,6 +131,7 @@ const AddSolutionModal = ({solution,setSolution}) => {
       });
   
       setSolution(updatedSol);
+      setActionCount(1);
 
       toast({
         title: 'Solution updated Successfully.',
