@@ -129,7 +129,8 @@ const AddModuleModal = ({module,setModule,moduleFormData,setModuleFormData, hand
     setModuleFormData({
       name: rowData.name,
       description: rowData.description,
-      scope: rowData.scope
+      scope: rowData.scope,
+      status: true
     })
     setModuleIdUpdate(rowData._id);
     setFormMode('update'); 
