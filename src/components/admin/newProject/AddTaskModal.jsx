@@ -1,5 +1,5 @@
-import { AddIcon, ChevronDownIcon, DeleteIcon, RepeatIcon } from '@chakra-ui/icons'
-import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Flex, FormControl, FormLabel, HStack, Input, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Tab, TabList, TabPanel, TabPanels, Table, TableContainer, Tabs, Tbody, Td, Text, Textarea, Th, Thead, Tr, useDisclosure, useToast } from '@chakra-ui/react'
+import { AddIcon, CheckCircleIcon, ChevronDownIcon, DeleteIcon, RepeatIcon } from '@chakra-ui/icons'
+import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Flex, FormControl, FormLabel, HStack, Input, List, ListIcon, ListItem, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Tab, TabList, TabPanel, TabPanels, Table, TableContainer, Tabs, Tbody, Td, Text, Textarea, Th, Thead, Tr, useDisclosure, useToast } from '@chakra-ui/react'
 import React, { useRef, useState } from 'react'
 import axios from 'axios'
 
@@ -64,6 +64,7 @@ const AddModuleModal = ({solution,task,setTask,taskFormData, setTaskFormData}) =
     setSelectedActions(allActions);
     setSelectedAct("Select an option");
   };
+
   
   return (
     <div>
@@ -79,7 +80,7 @@ const AddModuleModal = ({solution,task,setTask,taskFormData, setTaskFormData}) =
               <Flex gap={4}>
                 <FormControl isRequired>
                 <HStack align='start' spacing={0}>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel w='100px'>Name</FormLabel>
                   <Input
                     type="text"
                     name="name"
@@ -104,7 +105,6 @@ const AddModuleModal = ({solution,task,setTask,taskFormData, setTaskFormData}) =
                     </HStack>
                 </FormControl>
 
-
                 <Box>
                   <Button size='sm'
                     rightIcon={formMode === 'add' ? <AddIcon /> : <RepeatIcon />}
@@ -116,19 +116,14 @@ const AddModuleModal = ({solution,task,setTask,taskFormData, setTaskFormData}) =
                 </Box>
                 </Flex>
                 
-                <Box mt='12px'>
                 <Tabs>
-                <TabList>
-                  <Tab isDisabled={taskType==="Select an option" || taskType!=="Standard"}>Standard</Tab>
-                  <Tab isDisabled={taskType==="Select an option" || taskType!=="Custom"}>Custom</Tab>
-                </TabList>
                 <TabPanels>
-                  <TabPanel>
-                      <Flex mb='12px'>
+                  {taskType==="Standard" && <TabPanel p={0} mt='10px'>
+                      <Flex m='0' gap={4}>
                       <FormControl isRequired>
                         <HStack align='start' spacing={0}>
-                        <FormLabel>Solution</FormLabel>
-                        <Menu >
+                        <FormLabel w='80px'>Solution</FormLabel>
+                        <Menu>
                           <MenuButton w="80%" as={Button} variant="outline" colorScheme="gray" rightIcon={<ChevronDownIcon />} >
                             {selectedSol}
                           </MenuButton>
@@ -140,51 +135,43 @@ const AddModuleModal = ({solution,task,setTask,taskFormData, setTaskFormData}) =
                         </Menu>
                         </HStack>
                       </FormControl>
-                      </Flex>
 
-                      <FormControl isRequired>
-                        <HStack align="start" spacing={0}>
-                          <FormLabel>Action</FormLabel>
-                          <Menu>
-                            <MenuButton
-                              w="80%"
-                              as={Button}
-                              variant="outline"
-                              colorScheme="gray"
-                              rightIcon={<ChevronDownIcon />}
-                            >
-                              {selectedAct}
-                            </MenuButton>
-                            <MenuList>
-                              {selectedActions.map((act) => (
-                                <MenuItem key={act._id} onClick={()=>setSelectedAct(act.action)}>{act.action}</MenuItem>
-                              ))}
-                            </MenuList>
-                          </Menu>
+                      <FormControl w='115%'>
+                        <HStack align='start' spacing={0}>
+                        <FormLabel w='80px'>Actions : </FormLabel>
+                        <List>
+                        {selectedActions && selectedActions.map((val,ind)=>(
+                          <ListItem key={val._id}>
+                            <ListIcon as={CheckCircleIcon} color='green.500' />
+                            {val.action}
+                          </ListItem>
+                        ))}
+                    </List>
                         </HStack>
                       </FormControl>
-                    
-                  </TabPanel>
-                  <TabPanel>
+                      </Flex>                  
+                  </TabPanel>}
+
+                  {taskType==="Custom" && <TabPanel p={0} mt='10px'>
+                  <Flex mb='12px'>
                   <FormControl isRequired mb='15px'>
                       <HStack align='start' spacing={0}>
                       <FormLabel>Action Name</FormLabel>
-                      <Input w="80%" type="text" placeholder="Enter the action name"/>
+                      <Input type="text" w='70%' placeholder="Enter the action name"/>
                       </HStack>
                     </FormControl>
 
                     <FormControl isRequired>
                       <HStack align='start' spacing={0}>
                       <FormLabel>Script</FormLabel>
-                      <Textarea w="85%" placeholder="Enter the script"/>
+                      <Textarea placeholder="Enter the script" w='70%'/>
                       </HStack>
                     </FormControl>
+                    </Flex>
                   </TabPanel>
+                  }
                 </TabPanels>
-              </Tabs>
-                </Box>
-
-              
+              </Tabs>          
             </form>
 
             <Text mt='10px' p='5px' bg='gray.50' borderRadius='5px' fontSize={{ base: '18px', md: '22px', lg: '30px' }} color="#445069">Available Tasks</Text>

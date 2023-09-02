@@ -13,7 +13,6 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
     name: "",
     description: "",
     scope: "",
-    supportive_id: "",
     status: true,
   });
   const [phaseFormSubmitted, setPhaseFormSubmitted] = useState(false);
@@ -34,7 +33,6 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
         phase: [...prevFormData.phase, data.name]
       }));
 
-      // setTableData((prevData)=>[...prevData,{name: data.name,description: data.description,scope: data.scope,id: data._id}])
       setPhase((prevData)=>[...prevData,{name: data.name,description: data.description,scope: data.scope,id: data._id}])
 
       toast({
@@ -50,6 +48,16 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
   };
 
   const handlePhaseSelect = async (selectedPhaseId,selectedPhaseName) => {
+    if (checkedPhases.includes(selectedPhaseId)) {
+      setCheckedPhases(checkedPhases.filter(id => id !== selectedPhaseId));
+
+    setTableData(prevTableData => prevTableData.filter(rowData => rowData.id !== selectedPhaseId));
+    setFormData(prevFormData => ({
+      ...prevFormData,
+      phase: prevFormData.phase.filter(phaseName => phaseName !== selectedPhaseName)
+    }));
+    } else {
+      setCheckedPhases([...checkedPhases, selectedPhaseId]);
     try {
       const response = await axios.get(`http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_phase/${selectedPhaseId}`);
 
@@ -66,11 +74,11 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
       };
   
       setTableData((prevTableData) => [...prevTableData, newData]);
-      setCheckedPhases((prevCheckedPhases) => [...prevCheckedPhases, selectedPhaseId]);
-
+      
     } catch (error) {
       console.error("Error fetching selected phase data:", error);
     }
+  }
   };
 
   const handleRemovePhase =(index,phaseId,phase)=>{
@@ -119,7 +127,7 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
                         size='md'
                         colorScheme='green'
                         isChecked={checkedPhases.includes(val._id)}
-                        onChange={(e) => { if(e.target.checked) handlePhaseSelect(val._id, val.name)}}
+                        onChange={(e) => {handlePhaseSelect(val._id, val.name)}}
                       >
                         {val.name}
                       </Checkbox>
@@ -201,7 +209,7 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
               </Thead>
 
                   {tableData.map((rowData, index) => (
-                  <Tbody  key={rowData.id}>
+                  <Tbody key={rowData.id}>
                      {rowData.name !== "" && <Tr key={rowData.id}>
                         <Td>{rowData.name}</Td>
                         <Td>{rowData.description}</Td>
