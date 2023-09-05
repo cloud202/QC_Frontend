@@ -23,6 +23,20 @@ const AddModuleModal = ({solution,task,setTask,setTaskSubmitted,handleRemoveButt
   const [taskId,setTaskId] = useState(null);
 
   const submitHandler = async ()=>{
+    if (
+      taskName.trim() === "" ||
+      (taskType === "Standard" && selectedSolId === "" ) ||
+      (taskType === "Custom" && (actionName.trim() === "" || script.trim() === ""))
+    ){
+      toast({
+        title: "Please fill all the required fields.",
+        status: "error",
+        duration: 3000, 
+        isClosable: true,
+      });
+      return; 
+    }
+
     try {
       const taskData = {
           name : taskName,
@@ -76,6 +90,7 @@ const AddModuleModal = ({solution,task,setTask,setTaskSubmitted,handleRemoveButt
   };
 
   const onConfirmDelete = async () => {
+
     try {
       setIsAlertOpen(false); // Close the confirmation dialog
       await axios.delete(`http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_task/${taskIdDelete}`);
@@ -126,6 +141,20 @@ const AddModuleModal = ({solution,task,setTask,setTaskSubmitted,handleRemoveButt
   }
 
   const updateHandler = async()=>{
+    if (
+      taskName.trim() === "" ||
+      (taskType === "Standard" && selectedSolId === "" ) ||
+      (taskType === "Custom" && (actionName.trim() === "" || script.trim() === ""))
+    ){
+      toast({
+        title: "Please fill all the required fields.",
+        status: "error",
+        duration: 3000, 
+        isClosable: true,
+      });
+      return; 
+    }
+    
     try {
       const updatedData = {
         name : taskName,

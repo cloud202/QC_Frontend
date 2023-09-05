@@ -1,5 +1,4 @@
 import { Box, Button, Flex, Heading, Image, Menu, MenuButton, MenuDivider, MenuGroup, MenuItem, MenuList, Spacer, Text } from '@chakra-ui/react'
-import qcLogo from '../../img/black_qubitz.png'
 import modx from '../../img/modx.png'
 import React, { useState } from 'react';
 import '../../css/admin/navbar.css'
