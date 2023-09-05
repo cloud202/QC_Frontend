@@ -8,20 +8,40 @@ import AddSolutionModal from './AddSolutionModal';
 
 export const AttachTask = ({formData,setFormData,attachedTasks, setAttachedTasks }) => {
   const [task,setTask] = useState([]);
+  const [selectedModuleName,setSelectedModuleName] = useState("Select a module")
   const [selectedModule,setSelectedModule] = useState(null);
   const [checkedTask, setCheckedTask] = useState([]);
   const [solution,setSolution] = useState(null);
 
+  const [taskSubmitted,setTaskSubmitted] = useState(false);
 
-  const [taskFormData, setTaskFormData] = useState({
-    name: "",
-    description: "",
-    scope: "",
-    supportive_id: "temporary",
-    status: true,
-  });
+  const handleRemoveTask = (moduleId,taskId)=>{
+    const updatedAttachedTasks = { ...attachedTasks };
+    const taskIndex = updatedAttachedTasks[moduleId].indexOf(taskId);
 
-  const handleModuleSelect = (moduleId) => {
+    if (taskIndex !== -1) {
+      updatedAttachedTasks[moduleId].splice(taskIndex, 1);
+
+      setAttachedTasks(updatedAttachedTasks);
+    }
+  }
+
+  const handleRemoveButton = (taskId) => {
+    try {
+      const updatedAttachedTasks = { ...attachedTasks };
+  
+      for (const moduleId in updatedAttachedTasks) {
+        updatedAttachedTasks[moduleId] = updatedAttachedTasks[moduleId].filter(id => id !== taskId);
+      }
+
+      setAttachedTasks(updatedAttachedTasks);
+    } catch (error) {
+      console.error("Error deleting Task from all modules:", error);
+    }
+  };
+
+  const handleModuleSelect = (moduleId,moduleName) => {
+    setSelectedModuleName(moduleName);
     setSelectedModule(moduleId);
     setCheckedTask(attachedTasks[moduleId] || []);
   };
@@ -39,8 +59,6 @@ export const AttachTask = ({formData,setFormData,attachedTasks, setAttachedTasks
         ? prevAttachedTask[selectedModule].filter(id => id !== taskId)
         : [...(prevAttachedTask[selectedModule] || []), taskId],
     }));
-    
-    console.log(formData.modules);
   };
 
   const fetchSolDataEffect = useCallback(async () => {
@@ -56,6 +74,7 @@ export const AttachTask = ({formData,setFormData,attachedTasks, setAttachedTasks
     try {
       const tasks = await axios.get("http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_task");
       setTask(tasks.data);
+      setTaskSubmitted(false);
     } catch (error) {
       console.error("Error fetching task data:", error);
     }
@@ -64,8 +83,7 @@ export const AttachTask = ({formData,setFormData,attachedTasks, setAttachedTasks
   useEffect(() => {
     fetchTaskDataEffect();
     fetchSolDataEffect();
-  }, [fetchSolDataEffect,fetchTaskDataEffect]);
-
+  }, [fetchSolDataEffect,fetchTaskDataEffect,taskSubmitted]);
 
   return (
     <Flex direction="column" maxW="680px">
@@ -75,7 +93,7 @@ export const AttachTask = ({formData,setFormData,attachedTasks, setAttachedTasks
         <FormLabel flex="1">Attach To:</FormLabel>
         <Menu>
           <MenuButton w="80%" as={Button} variant="outline" colorscheme="gray" rightIcon={<ChevronDownIcon />}>
-          Select a Module
+          {selectedModuleName}
           </MenuButton>
           <MenuList p='20px'>
             {formData.modules.map((val) => {
@@ -85,7 +103,7 @@ export const AttachTask = ({formData,setFormData,attachedTasks, setAttachedTasks
                   spacing={2}
                   size='md'
                   colorscheme='green'
-                  onClick={()=>handleModuleSelect(val.id)}
+                  onClick={()=>handleModuleSelect(val.id,val.name)}
                 >
                   {val.name}
                 </MenuItem>
@@ -119,7 +137,7 @@ export const AttachTask = ({formData,setFormData,attachedTasks, setAttachedTasks
         </Menu>
       </Flex>
       <HStack>
-        <AddTaskModal solution={solution} task={task} setTask={setTask} taskFormData={taskFormData} setTaskFormData={setTaskFormData}/>
+        <AddTaskModal solution={solution} task={task} setTask={setTask} setTaskSubmitted={setTaskSubmitted} handleRemoveButton={handleRemoveButton}/>
         <AddSolutionModal solution={solution} setSolution={setSolution}/>
       </HStack>
       <Box mt='20px' p='5px' bg='gray.50' borderRadius='5px' fontSize={{ base: '18px', md: '22px', lg: '30px' }} color="#445069">
@@ -129,9 +147,9 @@ export const AttachTask = ({formData,setFormData,attachedTasks, setAttachedTasks
   <Table colorscheme="purple">
     <Thead>
       <Tr>
-        <Th>Phase</Th>
-        <Th>Attached Modules</Th>
-        <Th>Action</Th>
+        <Th>Module</Th>
+        <Th>Attached Task</Th>
+        <Th>Operation</Th>
       </Tr>
     </Thead>
     <Tbody>
@@ -151,7 +169,20 @@ export const AttachTask = ({formData,setFormData,attachedTasks, setAttachedTasks
               })}
             </Td>
             <Td>
-              Remove
+            {attachedTasks[val.id].map((taskId) => (
+                      <div key={taskId}>
+                        <Button
+                          rightIcon={<SmallCloseIcon />}
+                          colorScheme="red"
+                          variant="outline"
+                          size="xs"
+                          onClick={() => handleRemoveTask(val.id, taskId)}
+                        >
+                          Remove
+                        </Button>
+                        <Divider my={1} />
+                      </div>
+                    ))}
             </Td>
           </Tr>
         ) : null // Skip rendering the row if there are no attached modules
