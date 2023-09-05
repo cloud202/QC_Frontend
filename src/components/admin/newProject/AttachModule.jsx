@@ -155,7 +155,7 @@ export const AttachModule = ({ formData,setFormData,tableData,attachedModules, s
       <Tr>
         <Th>Phase</Th>
         <Th>Attached Modules</Th>
-        <Th>Action</Th>
+        <Th>Operation</Th>
       </Tr>
     </Thead>
     <Tbody>
