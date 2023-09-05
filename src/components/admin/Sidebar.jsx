@@ -34,7 +34,7 @@ const Sidebar = () => {
       } else {
         return (
           <>
-          <Box position="fixed" top="6px" left="4px" zIndex={3}>
+          <Box position="fixed" top="8px" left="4px" zIndex={3}>
             <IconButton
               icon={<HamburgerIcon />}
               aria-label="Open Menu"
