@@ -65,8 +65,8 @@ const NewProject = () => {
   }
 
   setTimeout(()=>{
-    console.log(templateState);
-  },12000)
+    console.log(formData);
+  },20000)
 
   return (
     <>

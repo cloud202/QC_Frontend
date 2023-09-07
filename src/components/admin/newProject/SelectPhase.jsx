@@ -30,7 +30,7 @@ export const SelectPhase = ({templateState,setTemplateState,formData,setFormData
       setPhaseFormSubmitted(true);
       setFormData((prevFormData) => ({
         ...prevFormData,
-        phase: [...prevFormData.phase, data.name]
+        phases: [...prevFormData.phases, data.name]
       }));
 
       setPhase((prevData)=>[...prevData,{name: data.name,description: data.description,scope: data.scope,id: data._id}])
@@ -50,7 +50,8 @@ export const SelectPhase = ({templateState,setTemplateState,formData,setFormData
   const handlePhaseSelect = async (selectedPhaseId,selectedPhaseName) => {
 
     const newPhase = {
-      phaseId: ""
+      phaseId: "",
+
     }
 
     if (checkedPhases.includes(selectedPhaseId)) {
@@ -59,7 +60,7 @@ export const SelectPhase = ({templateState,setTemplateState,formData,setFormData
     setTableData(prevTableData => prevTableData.filter(rowData => rowData.id !== selectedPhaseId));
     setFormData(prevFormData => ({
       ...prevFormData,
-      phase: prevFormData.phase.filter(phaseName => phaseName !== selectedPhaseName)
+      phases: prevFormData.phases.filter(phaseName => phaseName !== selectedPhaseName)
     }));
 
     const updatedPhasesTemplate = templateState.phases.filter(
@@ -77,7 +78,7 @@ export const SelectPhase = ({templateState,setTemplateState,formData,setFormData
 
       setFormData((prevFormData) => ({
         ...prevFormData,
-        phase: [...prevFormData.phase, selectedPhaseName]
+        phases: [...prevFormData.phases, selectedPhaseName]
       }));
 
       const newData = {
@@ -110,7 +111,7 @@ export const SelectPhase = ({templateState,setTemplateState,formData,setFormData
     setTableData(updatedTableData);
     setCheckedPhases((prevCheckedPhases) => prevCheckedPhases.filter((id) => id !== phaseId));
 
-    const updatedPhases = formData.phase.filter((phaseName) => phaseName !== phase);
+    const updatedPhases = formData.phases.filter((phaseName) => phaseName !== phase);
     setFormData((prevFormData) => ({
       ...prevFormData,
       phase: updatedPhases,
