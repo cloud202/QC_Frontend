@@ -24,7 +24,7 @@ const AddModuleModal = ({solution,task,setTask,setTaskSubmitted,handleRemoveButt
 
   const submitHandler = async ()=>{
     if (
-      taskName.trim() === "" ||
+      taskName.trim() === "" || (taskType==="Select an option") ||
       (taskType === "Standard" && selectedSolId === "" ) ||
       (taskType === "Custom" && (actionName.trim() === "" || script.trim() === ""))
     ){
@@ -154,7 +154,7 @@ const AddModuleModal = ({solution,task,setTask,setTaskSubmitted,handleRemoveButt
       });
       return; 
     }
-    
+
     try {
       const updatedData = {
         name : taskName,

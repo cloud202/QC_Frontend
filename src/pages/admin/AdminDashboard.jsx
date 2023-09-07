@@ -1,13 +1,28 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import {Box, Card, CardBody, CardHeader, Divider, Grid, GridItem, Heading, Image, SimpleGrid, Spinner, Stack, Table, TableCaption, TableContainer, Tbody, Td, Text, Th, Thead, Tr} from '@chakra-ui/react'
 import { Navbar } from '../../components/admin/Navbar'
 import Sidebar from '../../components/admin/Sidebar'
 import '../../css/admin/adminDashboard.css'
 import step_one from '../../img/admin_steps/1.png'
 import Footer from '../../components/global/Footer'
+import { useState,useCallback} from 'react'
+import axios from 'axios'
 
 const AdminDashboard = () => {
-  
+  const [projectTemplate,setProjectTemplate] = useState([])
+
+  const fetchTaskDataEffect = useCallback(async () => {
+    try {
+      const {data} = await axios.get("http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_template");
+      setProjectTemplate(data);
+    } catch (error) {
+      console.error("Error fetching task data:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchTaskDataEffect();
+  }, [fetchTaskDataEffect]);
   return (
     <>
     <Navbar/>
@@ -40,37 +55,15 @@ const AdminDashboard = () => {
                 </Thead>
 
                 <Tbody>
-                  <Tr>
-                    <Td>Qc-34</Td>
-                    <Td>Google workload</Td>
-                    <Td>Migrate</Td>
-                    <Td>Startup</Td>
-                    <Td>FSI</Td>
-                  </Tr>
 
-                  <Tr>
-                    <Td>Qc-34</Td>
-                    <Td>Microsoft workload</Td>
-                    <Td>Mordernize</Td>
-                    <Td>Startup</Td>
-                    <Td>FSI</Td>
-                  </Tr>
-                  <Tr>
-                    <Td>Qc-34</Td>
-                    <Td>Microsoft workload</Td>
-                    <Td>Mordernize</Td>
-                    <Td>Startup</Td>
-                    <Td>FSI</Td>
-                  </Tr>
-                  <Tr>
-                    <Td>Qc-34</Td>
-                    <Td>Microsoft workload</Td>
-                    <Td>Mordernize</Td>
-                    <Td>Startup</Td>
-                    <Td>FSI</Td>
-                  </Tr>
-                  
-                  
+                  {projectTemplate && projectTemplate.map((project)=> 
+                  <Tr key={project._id}>
+                    <Td>{project.project_id}</Td>
+                    <Td>{project.template_name}</Td>
+                    <Td>{project.template_type_id.name}</Td>
+                    <Td>{project.template_segment_id.name}</Td>
+                    <Td>{project.template_industry_id.name}</Td>
+                  </Tr>)}           
                 </Tbody>
               </Table>
             </TableContainer>

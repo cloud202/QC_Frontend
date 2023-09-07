@@ -6,7 +6,7 @@ import { ChevronDownIcon, SmallCloseIcon } from '@chakra-ui/icons';
 import AddTaskModal from './AddTaskModal';
 import AddSolutionModal from './AddSolutionModal';
 
-export const AttachTask = ({formData,setFormData,attachedTasks, setAttachedTasks }) => {
+export const AttachTask = ({templateState,setTemplateState,formData,setFormData,attachedTasks, setAttachedTasks }) => {
   const [task,setTask] = useState([]);
   const [selectedModuleName,setSelectedModuleName] = useState("Select a module")
   const [selectedModule,setSelectedModule] = useState(null);
@@ -15,16 +15,25 @@ export const AttachTask = ({formData,setFormData,attachedTasks, setAttachedTasks
 
   const [taskSubmitted,setTaskSubmitted] = useState(false);
 
-  const handleRemoveTask = (moduleId,taskId)=>{
+  const handleRemoveTask = (moduleId, taskId) => {
+    // Remove the task from attachedTasks state
     const updatedAttachedTasks = { ...attachedTasks };
     const taskIndex = updatedAttachedTasks[moduleId].indexOf(taskId);
-
+  
     if (taskIndex !== -1) {
       updatedAttachedTasks[moduleId].splice(taskIndex, 1);
-
       setAttachedTasks(updatedAttachedTasks);
     }
-  }
+  
+    // Remove the task from templateState.tasks
+    setTemplateState((prevTemplateState) => {
+      const updatedTasks = prevTemplateState.tasks.filter(
+        (task) => !(task.taskId === taskId && task.moduleId === moduleId)
+      );
+      return { ...prevTemplateState, tasks: updatedTasks };
+    });
+  };
+  
 
   const handleRemoveButton = (taskId) => {
     try {
@@ -46,17 +55,34 @@ export const AttachTask = ({formData,setFormData,attachedTasks, setAttachedTasks
     setCheckedTask(attachedTasks[moduleId] || []);
   };
 
-  const handleTaskSelect = (taskId,name) => {
+  const handleTaskSelect = (taskId, name) => {
     if (checkedTask.includes(taskId)) {
-      setCheckedTask(checkedTask.filter(id => id !== taskId));
+      // Task is already checked, uncheck it and remove it from templateState.tasks
+      setCheckedTask(checkedTask.filter((id) => id !== taskId));
+  
+      setTemplateState((prevTemplateState) => {
+        const updatedTasks = prevTemplateState.tasks.filter(
+          (task) => !(task.taskId === taskId && task.moduleId === selectedModule)
+        );
+        return { ...prevTemplateState, tasks: updatedTasks };
+      });
     } else {
+      // Task is not checked, check it and add it to templateState.tasks
       setCheckedTask([...checkedTask, taskId]);
+  
+      setTemplateState((prevTemplateState) => {
+        const newTask = {
+          taskId: taskId,
+          moduleId: selectedModule,
+        };
+        return { ...prevTemplateState, tasks: [...prevTemplateState.tasks, newTask] };
+      });
     }
-
+  
     setAttachedTasks((prevAttachedTask) => ({
       ...prevAttachedTask,
       [selectedModule]: checkedTask.includes(taskId)
-        ? prevAttachedTask[selectedModule].filter(id => id !== taskId)
+        ? prevAttachedTask[selectedModule].filter((id) => id !== taskId)
         : [...(prevAttachedTask[selectedModule] || []), taskId],
     }));
   };
