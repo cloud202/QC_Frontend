@@ -4,7 +4,7 @@ import { Checkbox,Box, Button, Flex, FormControl, FormLabel, HStack, Input, Menu
 import { ChevronDownIcon, SmallCloseIcon } from '@chakra-ui/icons';
 import AddPhaseModal from './AddPhaseModal';
 
-export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
+export const SelectPhase = ({templateState,setTemplateState,formData,setFormData,tableData,setTableData}) => {
   const toast = useToast()
   const { isOpen, onClose } = useDisclosure()
   const [phase,setPhase] = useState([])
@@ -48,6 +48,7 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
   };
 
   const handlePhaseSelect = async (selectedPhaseId,selectedPhaseName) => {
+
     if (checkedPhases.includes(selectedPhaseId)) {
       setCheckedPhases(checkedPhases.filter(id => id !== selectedPhaseId));
 
@@ -55,6 +56,15 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
     setFormData(prevFormData => ({
       ...prevFormData,
       phase: prevFormData.phase.filter(phaseName => phaseName !== selectedPhaseName)
+    }));
+
+    const updatedPhasesTemplate = templateState.phases.filter(
+      (phaseObject) => phaseObject.phaseId !== selectedPhaseId
+    );
+
+    setTemplateState((prevState) => ({
+      ...prevState,
+      phases: updatedPhasesTemplate,
     }));
     } else {
       setCheckedPhases([...checkedPhases, selectedPhaseId]);
@@ -74,10 +84,18 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
       };
   
       setTableData((prevTableData) => [...prevTableData, newData]);
+      newPhase.phaseId = selectedPhaseId;
       
     } catch (error) {
       console.error("Error fetching selected phase data:", error);
     }
+  }
+  
+  if(newPhase.phaseId!==""){
+      setTemplateState((prevState) => ({
+        ...prevState,
+        phases: [...prevState.phases, newPhase],
+      }));
   }
   };
 
@@ -93,6 +111,16 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
       ...prevFormData,
       phase: updatedPhases,
     }));
+
+    const updatedPhasesTemplate = templateState.phases.filter(
+      (phaseObject) => phaseObject.phaseId !== phaseId
+    );
+
+    setTemplateState((prevState) => ({
+      ...prevState,
+      phases: updatedPhasesTemplate,
+    }));
+    
   }
 
   const fetchDataEffect = useCallback(async () => {
@@ -107,7 +135,6 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
   useEffect(() => {
     fetchDataEffect();
   }, [phaseFormSubmitted,fetchDataEffect]);
-
 
   return (
     <Flex direction="column" maxW="680px">
