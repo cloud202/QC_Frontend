@@ -49,6 +49,10 @@ export const SelectPhase = ({templateState,setTemplateState,formData,setFormData
 
   const handlePhaseSelect = async (selectedPhaseId,selectedPhaseName) => {
 
+    const newPhase = {
+      phaseId: ""
+    }
+
     if (checkedPhases.includes(selectedPhaseId)) {
       setCheckedPhases(checkedPhases.filter(id => id !== selectedPhaseId));
 
