@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Navbar } from '../../components/admin/Navbar'
 import Sidebar from '../../components/admin/Sidebar'
-import { Grid, GridItem, Button, Flex, Progress, Box, Text } from '@chakra-ui/react'
+import { Grid, GridItem, Button, Flex, Progress, Box, Text, useToast, Spinner } from '@chakra-ui/react'
 import { ArrowBackIcon, ArrowForwardIcon, CheckIcon } from '@chakra-ui/icons'
 import DefineProject from '../../components/admin/newProject/DefineProject';
 import { SelectPhase } from '../../components/admin/newProject/SelectPhase'
@@ -10,9 +10,13 @@ import AttachTask from '../../components/admin/newProject/AttachTask'
 import Submit from '../../components/admin/newProject/Submit'
 import axios from 'axios'
 import Summary from '../../components/admin/newProject/Summary'
+import { useNavigate } from 'react-router-dom';
 
 const NewProject = () => {
   const [currPage,setCurrPage] = useState(1);
+  const toast = useToast();
+  const navigate = useNavigate();
+  const [isLoading,setIsLoading] = useState(false);
   
   const [formData, setFormData] = useState({
     templateName: "",
@@ -55,6 +59,7 @@ const NewProject = () => {
   }
 
   const handleSubmit=async()=>{
+    setIsLoading(true);
 
     if (!summaryData || !summaryData.phases) {
       console.error("Summary data is not populated as expected.");
@@ -110,9 +115,25 @@ const NewProject = () => {
     
     try{
       const {data} = await axios.post(`${process.env.REACT_APP_API_URL}/api/admin/master/v2/project_template`,transformedData);
-      console.log(data);
+      setIsLoading(false);
+      toast({
+        title: "Project Template Submitted Successfully",
+        description: "Thank you for your submission.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      setTimeout(() => {
+        navigate('/admin');
+      }, 1500);
     }catch(e){
-      console.log(e)
+      toast({
+        title: "Error submitting the form",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      setIsLoading(false);
     }
   }
 
@@ -136,13 +157,12 @@ const NewProject = () => {
         { currPage===3 && <AttachModule summaryData={summaryData} setSummaryData={setSummaryData} formData={formData} setFormData={setFormData} tableData={tableData} attachedModules={attachedModules} setAttachedModules={setAttachedModules}/>}
         { currPage===4 && <AttachTask summaryData={summaryData} setSummaryData={setSummaryData} formData={formData} setFormData={setFormData} attachedTasks={attachedTasks} setAttachedTasks={setAttachedTasks}/>}
         { currPage===5 && <Summary summaryData={summaryData}/>}
-
         <Flex maxW="680px" justifyContent="space-between" alignItems="center" mt='10px'>
           <Button isDisabled={currPage===1} leftIcon={<ArrowBackIcon />} onClick={handlePrevious}colorScheme='purple' variant='outline' >Previous</Button>
-          <Button rightIcon={currPage!==5?<ArrowForwardIcon/>:<CheckIcon/>} onClick={currPage!==5 ? handleNext: handleSubmit} colorScheme='purple' variant='outline' >{
+          <Button rightIcon={currPage!==5?<ArrowForwardIcon/>: (isLoading? <Spinner/> :<CheckIcon/>)} onClick={currPage!==5 ? handleNext: handleSubmit} colorScheme='purple' variant='outline' >{
             currPage===4? "Review" : (currPage!==5?"Next":"Submit")
           }</Button>
-        </Flex> 
+        </Flex>
 
     </GridItem>
     </Grid>
