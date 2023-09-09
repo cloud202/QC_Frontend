@@ -19,7 +19,7 @@ const AddModuleModal = ({module,setModule,moduleFormData,setModuleFormData, hand
 
   const submitHandler = async ()=>{
     try {
-      const {data} = await axios.post("http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_module",moduleFormData);
+      const {data} = await axios.post(`${process.env.REACT_APP_API_URL}/api/admin/master/project_module`,moduleFormData);
       console.log(data)
 
       setModule((prevData)=>[...prevData,{name: data.name,description: data.description,scope: data.scope,_id: data._id}])
@@ -64,7 +64,7 @@ const AddModuleModal = ({module,setModule,moduleFormData,setModuleFormData, hand
       return;
     }
     try {
-      await axios.patch(`http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_module/${moduleIdUpdate}`, moduleFormData);
+      await axios.patch(`${process.env.REACT_APP_API_URL}/api/admin/master/project_module/${moduleIdUpdate}`, moduleFormData);
       const updatedModuleData = module.map(row => {
         if (row._id === moduleIdUpdate) {
           return {
@@ -104,7 +104,7 @@ const AddModuleModal = ({module,setModule,moduleFormData,setModuleFormData, hand
   const onConfirmDelete = async () => {
     try {
       setIsAlertOpen(false); // Close the confirmation dialog
-      await axios.delete(`http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_module/${moduleIdDelete}`);
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/admin/master/project_module/${moduleIdDelete}`);
 
       const updatedModule = module.filter(row => row._id !== moduleIdDelete);
       setModule(updatedModule);

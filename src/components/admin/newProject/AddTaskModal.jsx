@@ -1,5 +1,5 @@
 import { AddIcon, CheckCircleIcon, ChevronDownIcon, DeleteIcon, RepeatIcon } from '@chakra-ui/icons'
-import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Divider, Flex, FormControl, FormLabel, HStack, Input, List, ListIcon, ListItem, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Tab, TabList, TabPanel, TabPanels, Table, TableContainer, Tabs, Tbody, Td, Text, Textarea, Th, Thead, Tr, useDisclosure, useToast } from '@chakra-ui/react'
+import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Flex, FormControl, FormLabel, HStack, Input, List, ListIcon, ListItem, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, TabPanel, TabPanels, Table, TableContainer, Tabs, Tbody, Td, Text, Textarea, Th, Thead, Tr, useDisclosure, useToast } from '@chakra-ui/react'
 import React, { useRef, useState } from 'react'
 import axios from 'axios'
 
@@ -48,10 +48,9 @@ const AddModuleModal = ({solution,task,setTask,setTaskSubmitted,handleRemoveButt
           task_solutionid: selectedSolId
       }
 
-      const {data} = await axios.post("http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_task",taskData);
+      const {data} = await axios.post(`${process.env.REACT_APP_API_URL}/api/admin/master/project_task`,taskData);
       setTaskSubmitted(true);
-      console.log(data);
-      setTask((prevData)=>[...prevData,{data}]);
+      setTask((prevData)=>[...prevData,data]);
       toast({
         title: "Task Added",
         description: "The task has been added successfully.",
@@ -93,7 +92,7 @@ const AddModuleModal = ({solution,task,setTask,setTaskSubmitted,handleRemoveButt
 
     try {
       setIsAlertOpen(false); // Close the confirmation dialog
-      await axios.delete(`http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_task/${taskIdDelete}`);
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/admin/master/project_task/${taskIdDelete}`);
 
       const updatedTask = task.filter(row => row._id !== taskIdDelete);
       setTask(updatedTask);
@@ -166,7 +165,7 @@ const AddModuleModal = ({solution,task,setTask,setTaskSubmitted,handleRemoveButt
         task_solutionid: selectedSolId
       }
 
-      const {data} = await axios.patch(`http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_task/${taskIdUpdate}`, updatedData);
+      const {data} = await axios.patch(`${process.env.REACT_APP_API_URL}/api/admin/master/project_task/${taskIdUpdate}`, updatedData);
       // const updatedTaskData = task.map(row => {
       //   if (row._id === taskIdUpdate) {
       //     return {
@@ -183,7 +182,7 @@ const AddModuleModal = ({solution,task,setTask,setTaskSubmitted,handleRemoveButt
       //   return row;
       // });      
       // setTask(updatedTaskData);
-      setTask((prevData)=>[...prevData,{data}]);
+      setTask((prevData)=>[...prevData,data]);
       setTaskSubmitted(true);
       toast({
           title: 'Task Updated Successfully.',

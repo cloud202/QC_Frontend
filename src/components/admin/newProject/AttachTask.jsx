@@ -6,7 +6,7 @@ import { ChevronDownIcon, SmallCloseIcon } from '@chakra-ui/icons';
 import AddTaskModal from './AddTaskModal';
 import AddSolutionModal from './AddSolutionModal';
 
-export const AttachTask = ({templateState,setTemplateState,formData,setFormData,attachedTasks, setAttachedTasks }) => {
+export const AttachTask = ({summaryData,setSummaryData,templateState,setTemplateState,formData,setFormData,attachedTasks, setAttachedTasks }) => {
   const [task,setTask] = useState([]);
   const [selectedModuleName,setSelectedModuleName] = useState("Select a module")
   const [selectedModule,setSelectedModule] = useState(null);
@@ -14,7 +14,7 @@ export const AttachTask = ({templateState,setTemplateState,formData,setFormData,
   const [solution,setSolution] = useState(null);
 
   const [taskSubmitted,setTaskSubmitted] = useState(false);
-
+  
   const handleRemoveTask = (moduleId, taskId) => {
     // Remove the task from attachedTasks state
     const updatedAttachedTasks = { ...attachedTasks };
@@ -23,18 +23,53 @@ export const AttachTask = ({templateState,setTemplateState,formData,setFormData,
     if (taskIndex !== -1) {
       updatedAttachedTasks[moduleId].splice(taskIndex, 1);
       setAttachedTasks(updatedAttachedTasks);
+      setCheckedTask((prevCheckedTask) => prevCheckedTask.filter((id) => id !== taskId));
     }
-  
-    // Remove the task from templateState.tasks
-    setTemplateState((prevTemplateState) => {
+      setTemplateState((prevTemplateState) => {
       const updatedTasks = prevTemplateState.tasks.filter(
         (task) => !(task.taskId === taskId && task.moduleId === moduleId)
       );
       return { ...prevTemplateState, tasks: updatedTasks };
     });
+
+    setSummaryData((prevData) => {
+      const updatedPhases = prevData.phases.map((phase) => {
+        const updatedModules = phase.modules.map((module) => {
+          if (module.moduleId === moduleId) {
+            // Remove the task from the module's tasks array
+            const updatedTasks = module.tasks.filter((task) => task.taskId !== taskId);
+            return {
+              ...module,
+              tasks: updatedTasks
+            };
+          }
+          return module; // Return unchanged if not a match
+        });
+  
+        // Check if the module has no more tasks
+        const hasNoTasks = updatedModules.every((module) => module.tasks.length === 0);
+  
+        if (hasNoTasks) {
+          // Remove the module from the phase if there are no more tasks
+          return {
+            ...phase,
+            modules: updatedModules.filter((module) => module.moduleId !== moduleId)
+          };
+        }
+  
+        return {
+          ...phase,
+          modules: updatedModules
+        };
+      });
+  
+      return {
+        ...prevData,
+        phases: updatedPhases
+      };
+    });
   };
   
-
   const handleRemoveButton = (taskId) => {
     try {
       const updatedAttachedTasks = { ...attachedTasks };
@@ -56,6 +91,12 @@ export const AttachTask = ({templateState,setTemplateState,formData,setFormData,
   };
 
   const handleTaskSelect = (taskId, name) => {
+    const newTask = {
+      taskId: taskId,
+      taskName: name
+    }
+    
+
     if (checkedTask.includes(taskId)) {
       // Task is already checked, uncheck it and remove it from templateState.tasks
       setCheckedTask(checkedTask.filter((id) => id !== taskId));
@@ -66,7 +107,63 @@ export const AttachTask = ({templateState,setTemplateState,formData,setFormData,
         );
         return { ...prevTemplateState, tasks: updatedTasks };
       });
+
+      setSummaryData((prevData) => {
+        const updatedPhases = prevData.phases.map((phase) => {
+          const updatedModules = phase.modules.map((module) => {
+            if (module.moduleId === selectedModule) {
+              // Remove the task from the module's tasks array
+              const updatedTasks = module.tasks.filter((task) => task.taskId !== taskId);
+              return {
+                ...module,
+                tasks: updatedTasks
+              };
+            }
+            return module; // Return unchanged if not a match
+          });
+  
+          return {
+            ...phase,
+            modules: updatedModules
+          };
+        });
+  
+        return {
+          ...prevData,
+          phases: updatedPhases
+        };
+      });
     } else {
+      setSummaryData((prevData) => {
+        const updatedPhases = prevData.phases.map((phase) => {
+          const updatedModules = phase.modules.map((module) => {
+            // Check if the moduleId matches the selectedModule
+            if (module.moduleId === selectedModule) {
+              // Convert module.tasks to an array if it's an object
+              const tasksArray = Array.isArray(module.tasks) ? module.tasks : [];
+      
+              // Add the newTask to the tasks array in this module
+              tasksArray.push(newTask);
+      
+              return {
+                ...module,
+                tasks: tasksArray
+              };
+            }
+            return module; // Return unchanged if not a match
+          });
+      
+          return {
+            ...phase,
+            modules: updatedModules
+          };
+        });
+      
+        return {
+          ...prevData,
+          phases: updatedPhases
+        };
+      });
       // Task is not checked, check it and add it to templateState.tasks
       setCheckedTask([...checkedTask, taskId]);
   
@@ -89,7 +186,7 @@ export const AttachTask = ({templateState,setTemplateState,formData,setFormData,
 
   const fetchSolDataEffect = useCallback(async () => {
     try {
-      const sol = await axios.get("http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_solution");
+      const sol = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/master/project_solution`);
       setSolution(sol.data);
     } catch (error) {
       console.error("Error fetching solution data:", error);
@@ -98,7 +195,7 @@ export const AttachTask = ({templateState,setTemplateState,formData,setFormData,
 
   const fetchTaskDataEffect = useCallback(async () => {
     try {
-      const tasks = await axios.get("http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_task");
+      const tasks = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/master/project_task`);
       setTask(tasks.data);
       setTaskSubmitted(false);
     } catch (error) {
