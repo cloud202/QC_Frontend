@@ -1,28 +1,33 @@
+import { Navbar } from '../../components/admin/Navbar'
+import {  Grid, GridItem } from '@chakra-ui/react'
+import Sidebar from '../../components/admin/Sidebar'
 import { AddIcon, CloseIcon, DeleteIcon, RepeatIcon } from '@chakra-ui/icons'
-import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Flex, FormControl, FormLabel, HStack, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr, useDisclosure, useToast } from '@chakra-ui/react'
+import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Flex, FormControl, FormLabel, HStack, Input, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr, useToast } from '@chakra-ui/react'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import axios from 'axios'
+import SkeletonTable from '../../components/global/Skeleton'
 
-const AddSolutionModal = ({solution,setSolution}) => {
-  const { isOpen, onOpen, onClose } = useDisclosure()
+const Solution = () => {
   const [formMode, setFormMode] = useState('add');
   const [actionCount,setActionCount] = useState(1);
   const [actionApiPairs, setActionApiPairs] = useState([{ action: '', api: '' }]);
   const [solname,setSolName] = useState("");
   const [solIdDelete,setSolIdDelete] = useState(null);
   const [solIdUpdate,setSolIdUpdate] = useState(null);
+  const [solution,setSolution] = useState();
+  const [isLoading,setIsLoading] = useState(true);
 
   const toast = useToast();
   const [isAlertOpen,setIsAlertOpen] = useState(false);
   const cancelRef = useRef();
-  const onAlertClose = () => {
-    setIsAlertOpen(false);
-  };
 
   const handleActionApiChange = (index, field, value) => {
     const updatedPairs = [...actionApiPairs];
     updatedPairs[index][field] = value;
     setActionApiPairs(updatedPairs);
+  };
+  const onAlertClose = () => {
+    setIsAlertOpen(false);
   };
 
   const addActionApiPair = () => {
@@ -160,20 +165,36 @@ const AddSolutionModal = ({solution,setSolution}) => {
     }
   }
 
-  
+  const fetchSolDataEffect = useCallback(async () => {
+    try {
+      const sol = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/master/project_solution`);
+      setSolution(sol.data);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error fetching solution data:", error);
+    }
+  }, [setSolution]);
+
+  useEffect(() => {
+    fetchSolDataEffect();
+  }, [fetchSolDataEffect]);
+
   return (
-    <div>
-      <Button rightIcon={<AddIcon />} size='sm' colorScheme='teal' variant='outline' onClick={onOpen}>Add Solution</Button>
-      <Modal isOpen={isOpen} onClose={onClose} size='6xl'>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Define Solution</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
+    <>
+    <Navbar/>
+    <Grid templateColumns="repeat(6,1fr)">
+      <GridItem colSpan="1">
+      <Box w={{ base: 'none',sm: 'none', md: 'none', lg: '230px' }}>
+          <Sidebar/>
+        </Box>
+      </GridItem>
+
+      <GridItem colSpan={{base: '6', sm: '6', md: '6',lg: '5' }} m="30px">
+      <Text mb='10px' textAlign='center' p='5px' bg='#389785' color='white' borderRadius='5px' fontSize={{ base: '16px', sm: '18px',md: '25px', lg: '25px' }}>Create New Project Solution</Text>
           <Box p={4}>
             <form>
                 <FormControl isRequired spacing={0} mb='10px'>
-                <HStack align='start' maxW='785px'>
+                <HStack align='start' maxW='768px'>
                   <FormLabel>Name</FormLabel>
                   <Input type="text" name="name" w='55%' mr={{lg:'12px'}} value={solname} onChange={(e)=>setSolName(e.target.value)}/>
                       <Button size='sm'
@@ -185,61 +206,6 @@ const AddSolutionModal = ({solution,setSolution}) => {
                       </Button>            
                     </HStack>
                 </FormControl>
-
-                {/* {actionApiPairs.map((pair, index) => (
-                  <Box key={index} display='flex' alignItems='center' mb='8px'>
-                    <FormControl isRequired mr={6} w='35%'>
-                      <HStack align='start' spacing={0}>
-                        <FormLabel>Action</FormLabel>
-                        <Input
-                          type='text'
-                          name={`action-${index}`}
-                          value={pair.action}
-                          onChange={(e) =>
-                            handleActionApiChange(index, 'action', e.target.value)
-                          }
-                        />
-                      </HStack>
-                    </FormControl>
-
-                    <FormControl isRequired mr={6} w='32%'>
-                      <HStack align='start' spacing={0}>
-                        <FormLabel>API</FormLabel>
-                        <Input
-                          type='text'
-                          name={`api-${index}`}
-                          value={pair.api}
-                          onChange={(e) =>
-                            handleActionApiChange(index, 'api', e.target.value)
-                          }
-                        />
-                      </HStack>
-                    </FormControl>
-                    
-                    {index === actionApiPairs.length - 1 && (
-                      <Button
-                        size='sm'
-                        rightIcon={<AddIcon />}
-                        colorScheme='blue'
-                        onClick={addActionApiPair}
-                        mr='6px'
-                        variant='outline'
-                      >
-                        Add More Action
-                      </Button>
-                    )}
-
-                    {actionCount !== 1 && index===actionApiPairs.length -1 && (
-                      <Button size='sm'
-                      rightIcon={<CloseIcon/>}
-                      variant='outline'
-                      colorScheme='red'
-                        onClick={()=>removeActionApiPair(index)}>
-                        Remove Action
-                      </Button>
-                    )}
-                  </Box>
-                ))} */}
 
                 {actionApiPairs.map((pair, index) => (
                   <Flex key={index} alignItems='center' mb='8px' flexWrap='wrap'>
@@ -305,7 +271,7 @@ const AddSolutionModal = ({solution,setSolution}) => {
             </form>
 
             <Text mt='10px' p='5px' bg='gray.50' borderRadius='5px' fontSize={{ base: '18px', md: '22px', lg: '30px' }} color="#445069">Available Solution</Text>
-            <TableContainer mt='10px' >
+            {isLoading? <SkeletonTable/> : <TableContainer mt='10px' >
             <Table colorScheme='purple' size='sm'>
               <Thead>
                 <Tr>
@@ -351,14 +317,10 @@ const AddSolutionModal = ({solution,setSolution}) => {
     </Tbody>
   ))}
             </Table>
-          </TableContainer> 
-          </Box>
-          </ModalBody>
-          <ModalFooter>
-            <Button colorScheme='purple' variant='outline' mr={3} onClick={onClose}>Close</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+          </TableContainer>}
+          </Box>          
+      </GridItem>
+      </Grid>
 
       <AlertDialog
         isOpen={isAlertOpen}
@@ -384,9 +346,9 @@ const AddSolutionModal = ({solution,setSolution}) => {
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
-                
-    </div>
+
+    </> 
   )
 }
 
-export default AddSolutionModal;
+export default Solution

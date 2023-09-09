@@ -4,7 +4,7 @@ import { Checkbox,Box, Button, Flex, FormControl, FormLabel, HStack, Input, Menu
 import { ChevronDownIcon, SmallCloseIcon } from '@chakra-ui/icons';
 import AddPhaseModal from './AddPhaseModal';
 
-export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
+export const SelectPhase = ({setSummaryData,templateState,setTemplateState,formData,setFormData,tableData,setTableData}) => {
   const toast = useToast()
   const { isOpen, onClose } = useDisclosure()
   const [phase,setPhase] = useState([])
@@ -15,6 +15,7 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
     scope: "",
     status: true,
   });
+  
   const [phaseFormSubmitted, setPhaseFormSubmitted] = useState(false);
   const [checkedPhases, setCheckedPhases] = useState([]);
 
@@ -26,11 +27,11 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
 
   const handleSubmit = async () => {
     try{
-      const {data} = await axios.post("http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_phase",phaseFormData);
+      const {data} = await axios.post(`${process.env.REACT_APP_API_URL}/api/admin/master/project_phase`,phaseFormData);
       setPhaseFormSubmitted(true);
       setFormData((prevFormData) => ({
         ...prevFormData,
-        phase: [...prevFormData.phase, data.name]
+        phases: [...prevFormData.phases, data.name]
       }));
 
       setPhase((prevData)=>[...prevData,{name: data.name,description: data.description,scope: data.scope,id: data._id}])
@@ -48,22 +49,44 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
   };
 
   const handlePhaseSelect = async (selectedPhaseId,selectedPhaseName) => {
+    const newPhase = {
+      phaseId: "",
+    }
+
+    const newSummaryData = {
+      phaseId: selectedPhaseId,
+      phaseName: selectedPhaseName,
+      modules: []
+    }
+
     if (checkedPhases.includes(selectedPhaseId)) {
       setCheckedPhases(checkedPhases.filter(id => id !== selectedPhaseId));
 
     setTableData(prevTableData => prevTableData.filter(rowData => rowData.id !== selectedPhaseId));
     setFormData(prevFormData => ({
       ...prevFormData,
-      phase: prevFormData.phase.filter(phaseName => phaseName !== selectedPhaseName)
+      phases: prevFormData.phases.filter(phaseName => phaseName !== selectedPhaseName)
+    }));
+
+    const updatedPhasesTemplate = templateState.phases.filter(
+      (phaseObject) => phaseObject.phaseId !== selectedPhaseId
+    );
+
+    setTemplateState((prevState) => ({
+      ...prevState,
+      phases: updatedPhasesTemplate,
+    }));
+    setSummaryData((prevData) => ({
+      phases: prevData.phases.filter((phase) => phase.phaseId !== selectedPhaseId),
     }));
     } else {
       setCheckedPhases([...checkedPhases, selectedPhaseId]);
     try {
-      const response = await axios.get(`http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_phase/${selectedPhaseId}`);
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/master/project_phase/${selectedPhaseId}`);
 
       setFormData((prevFormData) => ({
         ...prevFormData,
-        phase: [...prevFormData.phase, selectedPhaseName]
+        phases: [...prevFormData.phases, selectedPhaseName]
       }));
 
       const newData = {
@@ -74,10 +97,21 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
       };
   
       setTableData((prevTableData) => [...prevTableData, newData]);
+      newPhase.phaseId = selectedPhaseId;
+      setSummaryData((prevData)=> ({
+        phases: [...prevData.phases,newSummaryData]
+      }));
       
     } catch (error) {
       console.error("Error fetching selected phase data:", error);
     }
+  }
+  
+  if(newPhase.phaseId!==""){
+      setTemplateState((prevState) => ({
+        ...prevState,
+        phases: [...prevState.phases, newPhase],
+      }));
   }
   };
 
@@ -88,16 +122,29 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
     setTableData(updatedTableData);
     setCheckedPhases((prevCheckedPhases) => prevCheckedPhases.filter((id) => id !== phaseId));
 
-    const updatedPhases = formData.phase.filter((phaseName) => phaseName !== phase);
+    const updatedPhases = formData.phases.filter((phaseName) => phaseName !== phase);
     setFormData((prevFormData) => ({
       ...prevFormData,
       phase: updatedPhases,
+    }));
+
+    const updatedPhasesTemplate = templateState.phases.filter(
+      (phaseObject) => phaseObject.phaseId !== phaseId
+    );
+
+    setTemplateState((prevState) => ({
+      ...prevState,
+      phases: updatedPhasesTemplate,
+    }));
+    
+    setSummaryData((prevData) => ({
+      phases: prevData.phases.filter((phase) => phase.phaseId !== phaseId),
     }));
   }
 
   const fetchDataEffect = useCallback(async () => {
     try {
-      const phases = await axios.get("http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_phase");
+      const phases = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/master/project_phase`);
       setPhase(phases.data);
     } catch (error) {
       console.error("Error fetching phase data:", error);
@@ -107,7 +154,6 @@ export const SelectPhase = ({formData,setFormData,tableData,setTableData}) => {
   useEffect(() => {
     fetchDataEffect();
   }, [phaseFormSubmitted,fetchDataEffect]);
-
 
   return (
     <Flex direction="column" maxW="680px">

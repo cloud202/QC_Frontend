@@ -6,46 +6,187 @@ import { ChevronDownIcon, SmallCloseIcon } from '@chakra-ui/icons';
 import AddTaskModal from './AddTaskModal';
 import AddSolutionModal from './AddSolutionModal';
 
-export const AttachTask = ({formData,setFormData,attachedTasks, setAttachedTasks }) => {
+export const AttachTask = ({summaryData,setSummaryData,templateState,setTemplateState,formData,setFormData,attachedTasks, setAttachedTasks }) => {
   const [task,setTask] = useState([]);
+  const [selectedModuleName,setSelectedModuleName] = useState("Select a module")
   const [selectedModule,setSelectedModule] = useState(null);
   const [checkedTask, setCheckedTask] = useState([]);
   const [solution,setSolution] = useState(null);
 
+  const [taskSubmitted,setTaskSubmitted] = useState(false);
+  
+  const handleRemoveTask = (moduleId, taskId) => {
+    // Remove the task from attachedTasks state
+    const updatedAttachedTasks = { ...attachedTasks };
+    const taskIndex = updatedAttachedTasks[moduleId].indexOf(taskId);
+  
+    if (taskIndex !== -1) {
+      updatedAttachedTasks[moduleId].splice(taskIndex, 1);
+      setAttachedTasks(updatedAttachedTasks);
+      setCheckedTask((prevCheckedTask) => prevCheckedTask.filter((id) => id !== taskId));
+    }
+      setTemplateState((prevTemplateState) => {
+      const updatedTasks = prevTemplateState.tasks.filter(
+        (task) => !(task.taskId === taskId && task.moduleId === moduleId)
+      );
+      return { ...prevTemplateState, tasks: updatedTasks };
+    });
 
-  const [taskFormData, setTaskFormData] = useState({
-    name: "",
-    description: "",
-    scope: "",
-    supportive_id: "temporary",
-    status: true,
-  });
+    setSummaryData((prevData) => {
+      const updatedPhases = prevData.phases.map((phase) => {
+        const updatedModules = phase.modules.map((module) => {
+          if (module.moduleId === moduleId) {
+            // Remove the task from the module's tasks array
+            const updatedTasks = module.tasks.filter((task) => task.taskId !== taskId);
+            return {
+              ...module,
+              tasks: updatedTasks
+            };
+          }
+          return module; // Return unchanged if not a match
+        });
+  
+        // Check if the module has no more tasks
+        const hasNoTasks = updatedModules.every((module) => module.tasks.length === 0);
+  
+        if (hasNoTasks) {
+          // Remove the module from the phase if there are no more tasks
+          return {
+            ...phase,
+            modules: updatedModules.filter((module) => module.moduleId !== moduleId)
+          };
+        }
+  
+        return {
+          ...phase,
+          modules: updatedModules
+        };
+      });
+  
+      return {
+        ...prevData,
+        phases: updatedPhases
+      };
+    });
+  };
+  
+  const handleRemoveButton = (taskId) => {
+    try {
+      const updatedAttachedTasks = { ...attachedTasks };
+  
+      for (const moduleId in updatedAttachedTasks) {
+        updatedAttachedTasks[moduleId] = updatedAttachedTasks[moduleId].filter(id => id !== taskId);
+      }
 
-  const handleModuleSelect = (moduleId) => {
+      setAttachedTasks(updatedAttachedTasks);
+    } catch (error) {
+      console.error("Error deleting Task from all modules:", error);
+    }
+  };
+
+  const handleModuleSelect = (moduleId,moduleName) => {
+    setSelectedModuleName(moduleName);
     setSelectedModule(moduleId);
     setCheckedTask(attachedTasks[moduleId] || []);
   };
 
-  const handleTaskSelect = (taskId,name) => {
-    if (checkedTask.includes(taskId)) {
-      setCheckedTask(checkedTask.filter(id => id !== taskId));
-    } else {
-      setCheckedTask([...checkedTask, taskId]);
+  const handleTaskSelect = (taskId, name) => {
+    const newTask = {
+      taskId: taskId,
+      taskName: name
     }
+    
 
+    if (checkedTask.includes(taskId)) {
+      // Task is already checked, uncheck it and remove it from templateState.tasks
+      setCheckedTask(checkedTask.filter((id) => id !== taskId));
+  
+      setTemplateState((prevTemplateState) => {
+        const updatedTasks = prevTemplateState.tasks.filter(
+          (task) => !(task.taskId === taskId && task.moduleId === selectedModule)
+        );
+        return { ...prevTemplateState, tasks: updatedTasks };
+      });
+
+      setSummaryData((prevData) => {
+        const updatedPhases = prevData.phases.map((phase) => {
+          const updatedModules = phase.modules.map((module) => {
+            if (module.moduleId === selectedModule) {
+              // Remove the task from the module's tasks array
+              const updatedTasks = module.tasks.filter((task) => task.taskId !== taskId);
+              return {
+                ...module,
+                tasks: updatedTasks
+              };
+            }
+            return module; // Return unchanged if not a match
+          });
+  
+          return {
+            ...phase,
+            modules: updatedModules
+          };
+        });
+  
+        return {
+          ...prevData,
+          phases: updatedPhases
+        };
+      });
+    } else {
+      setSummaryData((prevData) => {
+        const updatedPhases = prevData.phases.map((phase) => {
+          const updatedModules = phase.modules.map((module) => {
+            // Check if the moduleId matches the selectedModule
+            if (module.moduleId === selectedModule) {
+              // Convert module.tasks to an array if it's an object
+              const tasksArray = Array.isArray(module.tasks) ? module.tasks : [];
+      
+              // Add the newTask to the tasks array in this module
+              tasksArray.push(newTask);
+      
+              return {
+                ...module,
+                tasks: tasksArray
+              };
+            }
+            return module; // Return unchanged if not a match
+          });
+      
+          return {
+            ...phase,
+            modules: updatedModules
+          };
+        });
+      
+        return {
+          ...prevData,
+          phases: updatedPhases
+        };
+      });
+      // Task is not checked, check it and add it to templateState.tasks
+      setCheckedTask([...checkedTask, taskId]);
+  
+      setTemplateState((prevTemplateState) => {
+        const newTask = {
+          taskId: taskId,
+          moduleId: selectedModule,
+        };
+        return { ...prevTemplateState, tasks: [...prevTemplateState.tasks, newTask] };
+      });
+    }
+  
     setAttachedTasks((prevAttachedTask) => ({
       ...prevAttachedTask,
       [selectedModule]: checkedTask.includes(taskId)
-        ? prevAttachedTask[selectedModule].filter(id => id !== taskId)
+        ? prevAttachedTask[selectedModule].filter((id) => id !== taskId)
         : [...(prevAttachedTask[selectedModule] || []), taskId],
     }));
-    
-    console.log(formData.modules);
   };
 
   const fetchSolDataEffect = useCallback(async () => {
     try {
-      const sol = await axios.get("http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_solution");
+      const sol = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/master/project_solution`);
       setSolution(sol.data);
     } catch (error) {
       console.error("Error fetching solution data:", error);
@@ -54,8 +195,9 @@ export const AttachTask = ({formData,setFormData,attachedTasks, setAttachedTasks
 
   const fetchTaskDataEffect = useCallback(async () => {
     try {
-      const tasks = await axios.get("http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_task");
+      const tasks = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/master/project_task`);
       setTask(tasks.data);
+      setTaskSubmitted(false);
     } catch (error) {
       console.error("Error fetching task data:", error);
     }
@@ -64,8 +206,7 @@ export const AttachTask = ({formData,setFormData,attachedTasks, setAttachedTasks
   useEffect(() => {
     fetchTaskDataEffect();
     fetchSolDataEffect();
-  }, [fetchSolDataEffect,fetchTaskDataEffect]);
-
+  }, [fetchSolDataEffect,fetchTaskDataEffect,taskSubmitted]);
 
   return (
     <Flex direction="column" maxW="680px">
@@ -75,7 +216,7 @@ export const AttachTask = ({formData,setFormData,attachedTasks, setAttachedTasks
         <FormLabel flex="1">Attach To:</FormLabel>
         <Menu>
           <MenuButton w="80%" as={Button} variant="outline" colorscheme="gray" rightIcon={<ChevronDownIcon />}>
-          Select a Module
+          {selectedModuleName}
           </MenuButton>
           <MenuList p='20px'>
             {formData.modules.map((val) => {
@@ -85,7 +226,7 @@ export const AttachTask = ({formData,setFormData,attachedTasks, setAttachedTasks
                   spacing={2}
                   size='md'
                   colorscheme='green'
-                  onClick={()=>handleModuleSelect(val.id)}
+                  onClick={()=>handleModuleSelect(val.id,val.name)}
                 >
                   {val.name}
                 </MenuItem>
@@ -119,7 +260,7 @@ export const AttachTask = ({formData,setFormData,attachedTasks, setAttachedTasks
         </Menu>
       </Flex>
       <HStack>
-        <AddTaskModal solution={solution} task={task} setTask={setTask} taskFormData={taskFormData} setTaskFormData={setTaskFormData}/>
+        <AddTaskModal solution={solution} task={task} setTask={setTask} setTaskSubmitted={setTaskSubmitted} handleRemoveButton={handleRemoveButton}/>
         <AddSolutionModal solution={solution} setSolution={setSolution}/>
       </HStack>
       <Box mt='20px' p='5px' bg='gray.50' borderRadius='5px' fontSize={{ base: '18px', md: '22px', lg: '30px' }} color="#445069">
@@ -129,9 +270,9 @@ export const AttachTask = ({formData,setFormData,attachedTasks, setAttachedTasks
   <Table colorscheme="purple">
     <Thead>
       <Tr>
-        <Th>Phase</Th>
-        <Th>Attached Modules</Th>
-        <Th>Action</Th>
+        <Th>Module</Th>
+        <Th>Attached Task</Th>
+        <Th>Operation</Th>
       </Tr>
     </Thead>
     <Tbody>
@@ -151,7 +292,20 @@ export const AttachTask = ({formData,setFormData,attachedTasks, setAttachedTasks
               })}
             </Td>
             <Td>
-              Remove
+            {attachedTasks[val.id].map((taskId) => (
+                      <div key={taskId}>
+                        <Button
+                          rightIcon={<SmallCloseIcon />}
+                          colorScheme="red"
+                          variant="outline"
+                          size="xs"
+                          onClick={() => handleRemoveTask(val.id, taskId)}
+                        >
+                          Remove
+                        </Button>
+                        <Divider my={1} />
+                      </div>
+                    ))}
             </Td>
           </Tr>
         ) : null // Skip rendering the row if there are no attached modules
