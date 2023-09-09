@@ -1,9 +1,10 @@
 import { AddIcon, DeleteIcon, RepeatIcon } from '@chakra-ui/icons'
-import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Flex, FormControl, FormLabel, Grid, GridItem, HStack, Input, Spinner, Table, TableContainer, Tbody, Td, Text, Textarea, Th, Thead, Tr, useToast } from '@chakra-ui/react'
+import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Flex, FormControl, FormLabel, Grid, GridItem, HStack, Input, Table, TableContainer, Tbody, Td, Text, Textarea, Th, Thead, Tr, useToast } from '@chakra-ui/react'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import axios from 'axios'
 import Sidebar from '../../components/admin/Sidebar'
 import { Navbar } from '../../components/admin/Navbar'
+import SkeletonTable from '../../components/global/Skeleton'
 
 const Module = () => {
   const [formMode, setFormMode] = useState('add');
@@ -29,7 +30,7 @@ const Module = () => {
 
   const submitHandler = async ()=>{
     try {
-      const {data} = await axios.post("http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_module",moduleFormData);
+      const {data} = await axios.post(`${process.env.REACT_APP_API_URL}/api/admin/master/project_module`,moduleFormData);
       console.log(data)
 
       setModule((prevData)=>[...prevData,{name: data.name,description: data.description,scope: data.scope,_id: data._id}])
@@ -82,7 +83,7 @@ const Module = () => {
     }
     try {
       console.log(moduleIdUpdate)
-      await axios.patch(`http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_module/${moduleIdUpdate}`, moduleFormData);
+      await axios.patch(`${process.env.REACT_APP_API_URL}/api/admin/master/project_module/${moduleIdUpdate}`, moduleFormData);
       const updatedModuleData = module.map(row => {
         if (row._id === moduleIdUpdate) {
           return {
@@ -123,8 +124,8 @@ const Module = () => {
 
   const onConfirmDelete = async () => {
     try {
-      setIsAlertOpen(false); // Close the confirmation dialog
-      await axios.delete(`http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_module/${moduleIdDelete}`);
+      setIsAlertOpen(false);
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/admin/master/project_module/${moduleIdDelete}`);
 
       const updatedModule = module.filter(row => row._id !== moduleIdDelete);
       setModule(updatedModule);
@@ -155,7 +156,7 @@ const Module = () => {
 
   const fetchDataEffect = useCallback(async () => {
     try {
-      const modules = await axios.get("http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_module");
+      const modules = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/master/project_module`);
       setModule(modules.data);
       setLoading(false);
     } catch (error) {
@@ -178,12 +179,14 @@ const Module = () => {
       </GridItem>
 
       <GridItem colSpan={{base: '6', sm: '6', md: '6',lg: '5' }} m="30px">
+      <Text mb='10px' textAlign='center' p='5px' bg='#389785' color='white' borderRadius='5px' fontSize={{ base: '16px', sm: '18px',md: '25px', lg: '25px' }}>Create New Project Module</Text>
+
         <Box p={4}>
               <form>
                 <Flex gap={2} flexDirection='column'>
                   <FormControl isRequired>
-                  <HStack align='start' spacing={0}>
-                    <FormLabel w='100px'>Name</FormLabel>
+                  <HStack align='start' spacing={12}>
+                    <FormLabel>Name</FormLabel>
                     <Input
                       type="text"
                       name="name"
@@ -194,8 +197,8 @@ const Module = () => {
                   </FormControl>
 
                   <FormControl isRequired>
-                  <HStack align='start' spacing={0}>
-                    <FormLabel w='100px'>Description</FormLabel>
+                  <HStack align='start' spacing={2}>
+                    <FormLabel>Description</FormLabel>
                     <Textarea
                       name="description"
                       value={moduleFormData.description}
@@ -205,8 +208,8 @@ const Module = () => {
                   </FormControl>
 
                   <FormControl isRequired>
-                  <HStack align='start' spacing={0}>
-                    <FormLabel w='100px'>Scope</FormLabel>
+                  <HStack align='start' spacing={12}>
+                    <FormLabel>Scope</FormLabel>
                     <Input
                       type="text"
                       name="scope"
@@ -229,7 +232,7 @@ const Module = () => {
               </form>
 
               <Text mt='10px' p='5px' bg='gray.50' borderRadius='5px' fontSize={{ base: '18px', md: '22px', lg: '30px' }} color="#445069">Available Modules</Text>
-              {loading ? <Spinner thickness='4px' speed='0.65s' emptyColor='gray.200' color='blue.500' size='lg'/> : <TableContainer mt='10px' >
+              {loading ? <SkeletonTable/> : <TableContainer mt='10px' >
               <Table colorScheme='purple' size='sm'>
                 <Thead>
                   <Tr>

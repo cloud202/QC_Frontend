@@ -33,7 +33,7 @@ const UpdatePhaseModal = ({phaseFormData,setPhaseFormData,phase}) => {
           }
         
           try {
-            const { data } = await axios.patch(`http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_phase/${phaseId}`, formFields);
+            const { data } = await axios.patch(`${process.env.REACT_APP_API_URL}/api/admin/master/project_phase/${phaseId}`, formFields);
             toast({
                 title: 'Phase Updated Successfully.',
                 description: "Select the phase to see the updated phase.",

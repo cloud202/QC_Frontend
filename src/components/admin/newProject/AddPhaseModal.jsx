@@ -56,7 +56,7 @@ const AddPhaseModal = ({phase,setPhase,tableData,setTableData,phaseFormData,setP
     }
   
     try {
-      await axios.patch(`http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_phase/${phaseIdUpdate}`, phaseFormData);
+      await axios.patch(`${process.env.REACT_APP_API_URL}/api/admin/master/project_phase/${phaseIdUpdate}`, phaseFormData);
       const updatedPhaseData = phase.map(row => {
         if (row._id === phaseIdUpdate) {
           return {
@@ -121,7 +121,7 @@ const AddPhaseModal = ({phase,setPhase,tableData,setTableData,phaseFormData,setP
   const onConfirmDelete = async () => {
     try {
       setIsAlertOpen(false); // Close the confirmation dialog
-      await axios.delete(`http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_phase/${phaseIdDelete}`);
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/admin/master/project_phase/${phaseIdDelete}`);
       const updatedPhaseData = phase.filter(row => row._id !== phaseIdDelete);
       setPhase(updatedPhaseData);
 
