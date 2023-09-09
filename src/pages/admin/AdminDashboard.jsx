@@ -15,7 +15,7 @@ const AdminDashboard = () => {
 
   const fetchTaskDataEffect = useCallback(async () => {
     try {
-      const {data} = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/master/project_template`);
+      const {data} = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/master/v2/project_template`);
       setProjectTemplate(data);
       setIsLoading(false);
     } catch (error) {

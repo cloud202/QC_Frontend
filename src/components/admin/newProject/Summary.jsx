@@ -9,13 +9,15 @@ const PhaseComponent = ({ phase }) => {
       </Td>
       <Td>
         {phase.modules.map((module) => (
-          <div key={module.moduleId}>
+          <div key={module.moduleId}> {/* Use a unique key */}
             <Text fontSize="lg" fontWeight="semibold" m='4px'>
               {module.moduleName}
             </Text>
             <ol>
               {module.tasks.map((task) => (
-                <li key={task.taskId}>{task.taskName}</li>
+                <li key={task.taskId}> {/* Use a unique key */}
+                  {task.taskName}
+                </li>
               ))}
             </ol>
           </div>
@@ -23,11 +25,12 @@ const PhaseComponent = ({ phase }) => {
       </Td>
 
       <Td>
-        SOlution
+        Solution
       </Td>
     </Tr>
   );
 };
+
 
 const Summary = ({summaryData}) => {
   return (

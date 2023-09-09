@@ -6,7 +6,7 @@ import { ChevronDownIcon, SmallCloseIcon } from '@chakra-ui/icons';
 import AddTaskModal from './AddTaskModal';
 import AddSolutionModal from './AddSolutionModal';
 
-export const AttachTask = ({summaryData,setSummaryData,templateState,setTemplateState,formData,setFormData,attachedTasks, setAttachedTasks }) => {
+export const AttachTask = ({summaryData,setSummaryData,formData,setFormData,attachedTasks, setAttachedTasks }) => {
   const [task,setTask] = useState([]);
   const [selectedModuleName,setSelectedModuleName] = useState("Select a module")
   const [selectedModule,setSelectedModule] = useState(null);
@@ -25,12 +25,6 @@ export const AttachTask = ({summaryData,setSummaryData,templateState,setTemplate
       setAttachedTasks(updatedAttachedTasks);
       setCheckedTask((prevCheckedTask) => prevCheckedTask.filter((id) => id !== taskId));
     }
-      setTemplateState((prevTemplateState) => {
-      const updatedTasks = prevTemplateState.tasks.filter(
-        (task) => !(task.taskId === taskId && task.moduleId === moduleId)
-      );
-      return { ...prevTemplateState, tasks: updatedTasks };
-    });
 
     setSummaryData((prevData) => {
       const updatedPhases = prevData.phases.map((phase) => {
@@ -44,7 +38,7 @@ export const AttachTask = ({summaryData,setSummaryData,templateState,setTemplate
             };
           }
           return module; // Return unchanged if not a match
-        });
+      });
   
         // Check if the module has no more tasks
         const hasNoTasks = updatedModules.every((module) => module.tasks.length === 0);
@@ -100,13 +94,6 @@ export const AttachTask = ({summaryData,setSummaryData,templateState,setTemplate
     if (checkedTask.includes(taskId)) {
       // Task is already checked, uncheck it and remove it from templateState.tasks
       setCheckedTask(checkedTask.filter((id) => id !== taskId));
-  
-      setTemplateState((prevTemplateState) => {
-        const updatedTasks = prevTemplateState.tasks.filter(
-          (task) => !(task.taskId === taskId && task.moduleId === selectedModule)
-        );
-        return { ...prevTemplateState, tasks: updatedTasks };
-      });
 
       setSummaryData((prevData) => {
         const updatedPhases = prevData.phases.map((phase) => {
@@ -166,14 +153,6 @@ export const AttachTask = ({summaryData,setSummaryData,templateState,setTemplate
       });
       // Task is not checked, check it and add it to templateState.tasks
       setCheckedTask([...checkedTask, taskId]);
-  
-      setTemplateState((prevTemplateState) => {
-        const newTask = {
-          taskId: taskId,
-          moduleId: selectedModule,
-        };
-        return { ...prevTemplateState, tasks: [...prevTemplateState.tasks, newTask] };
-      });
     }
   
     setAttachedTasks((prevAttachedTask) => ({

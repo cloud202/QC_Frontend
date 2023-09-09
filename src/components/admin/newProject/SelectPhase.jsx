@@ -4,7 +4,7 @@ import { Checkbox,Box, Button, Flex, FormControl, FormLabel, HStack, Input, Menu
 import { ChevronDownIcon, SmallCloseIcon } from '@chakra-ui/icons';
 import AddPhaseModal from './AddPhaseModal';
 
-export const SelectPhase = ({setSummaryData,templateState,setTemplateState,formData,setFormData,tableData,setTableData}) => {
+export const SelectPhase = ({setSummaryData,formData,setFormData,tableData,setTableData}) => {
   const toast = useToast()
   const { isOpen, onClose } = useDisclosure()
   const [phase,setPhase] = useState([])
@@ -49,9 +49,6 @@ export const SelectPhase = ({setSummaryData,templateState,setTemplateState,formD
   };
 
   const handlePhaseSelect = async (selectedPhaseId,selectedPhaseName) => {
-    const newPhase = {
-      phaseId: "",
-    }
 
     const newSummaryData = {
       phaseId: selectedPhaseId,
@@ -68,15 +65,8 @@ export const SelectPhase = ({setSummaryData,templateState,setTemplateState,formD
       phases: prevFormData.phases.filter(phaseName => phaseName !== selectedPhaseName)
     }));
 
-    const updatedPhasesTemplate = templateState.phases.filter(
-      (phaseObject) => phaseObject.phaseId !== selectedPhaseId
-    );
-
-    setTemplateState((prevState) => ({
-      ...prevState,
-      phases: updatedPhasesTemplate,
-    }));
     setSummaryData((prevData) => ({
+      ...prevData,
       phases: prevData.phases.filter((phase) => phase.phaseId !== selectedPhaseId),
     }));
     } else {
@@ -97,8 +87,8 @@ export const SelectPhase = ({setSummaryData,templateState,setTemplateState,formD
       };
   
       setTableData((prevTableData) => [...prevTableData, newData]);
-      newPhase.phaseId = selectedPhaseId;
       setSummaryData((prevData)=> ({
+        ...prevData,
         phases: [...prevData.phases,newSummaryData]
       }));
       
@@ -107,12 +97,6 @@ export const SelectPhase = ({setSummaryData,templateState,setTemplateState,formD
     }
   }
   
-  if(newPhase.phaseId!==""){
-      setTemplateState((prevState) => ({
-        ...prevState,
-        phases: [...prevState.phases, newPhase],
-      }));
-  }
   };
 
   const handleRemovePhase =(index,phaseId,phase)=>{
@@ -128,16 +112,9 @@ export const SelectPhase = ({setSummaryData,templateState,setTemplateState,formD
       phase: updatedPhases,
     }));
 
-    const updatedPhasesTemplate = templateState.phases.filter(
-      (phaseObject) => phaseObject.phaseId !== phaseId
-    );
-
-    setTemplateState((prevState) => ({
-      ...prevState,
-      phases: updatedPhasesTemplate,
-    }));
     
     setSummaryData((prevData) => ({
+      ...prevData,
       phases: prevData.phases.filter((phase) => phase.phaseId !== phaseId),
     }));
   }

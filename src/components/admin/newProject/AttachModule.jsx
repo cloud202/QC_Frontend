@@ -5,7 +5,7 @@ import {Box,Button,Checkbox,Flex,FormLabel,HStack,Menu,MenuButton,MenuList,MenuI
 import { ChevronDownIcon, SmallCloseIcon } from '@chakra-ui/icons';
 import AddModuleModal from './AddModuleModal';
 
-export const AttachModule = ({summaryData,setSummaryData, templateState, setTemplateState, formData,setFormData,tableData,attachedModules, setAttachedModules }) => {
+export const AttachModule = ({summaryData,setSummaryData, setFormData,tableData,attachedModules, setAttachedModules }) => {
   const [module, setModule] = useState([]);
   const [selectedPhase, setSelectedPhase] = useState(null);
   const [checkedModules, setCheckedModules] = useState([]);
@@ -41,10 +41,7 @@ export const AttachModule = ({summaryData,setSummaryData, templateState, setTemp
   
       if (moduleIsChecked) {
         setFormData((prevFormData) => {
-          // Add some debugging logs here
-          console.log("Before filtering formData.modules:", prevFormData.modules);
           const updatedModules = prevFormData.modules.filter((module) => module.id !== moduleId);
-          console.log("After filtering formData.modules:", updatedModules);
           return {
             ...prevFormData,
             modules: updatedModules,
@@ -63,33 +60,9 @@ export const AttachModule = ({summaryData,setSummaryData, templateState, setTemp
   
           return { ...prevData, phases: updatedPhases };
         });
-
-        setTemplateState((prevTemplateState) => {
-          const updatedTemplateState = { ...prevTemplateState };
-          const moduleIndex = updatedTemplateState.modules.findIndex(
-            (module) => module.moduleId === moduleId && module.phaseId === selectedPhase
-          );
-  
-          if (moduleIndex !== -1) {
-            updatedTemplateState.modules.splice(moduleIndex, 1);
-          }
-  
-          return updatedTemplateState;
-        });
   
         return prevCheckedModules.filter((id) => id !== moduleId);
       } else {
-        // If module is not checked, check it and add to templateState.modules
-        setTemplateState((prevTemplateState) => {
-          const updatedTemplateState = { ...prevTemplateState };
-          const newModule = {
-            moduleId: moduleId,
-            phaseId: selectedPhase,
-          };
-          updatedTemplateState.modules.push(newModule);
-          return updatedTemplateState;
-        });
-  
         return [...prevCheckedModules, moduleId];
       }
     });
@@ -130,18 +103,6 @@ export const AttachModule = ({summaryData,setSummaryData, templateState, setTemp
     setCheckedModules((prevCheckedModules) =>
       prevCheckedModules.filter((id) => id !== moduleId)
     );
-
-    setTemplateState((prevTemplateState) => {
-      const updatedTemplateState = { ...prevTemplateState };
-      const moduleIndex = updatedTemplateState.modules.findIndex(
-        (module) => module.moduleId === moduleId && module.phaseId === phaseId
-      );
-
-      if (moduleIndex !== -1) {
-        updatedTemplateState.modules.splice(moduleIndex, 1);
-      }
-
-      return updatedTemplateState;})
 
       setSummaryData((prevData) => {
         const updatedPhases = prevData.phases.map((phase) => {
