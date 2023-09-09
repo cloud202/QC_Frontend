@@ -5,7 +5,7 @@ import {Box,Button,Checkbox,Flex,FormLabel,HStack,Menu,MenuButton,MenuList,MenuI
 import { ChevronDownIcon, SmallCloseIcon } from '@chakra-ui/icons';
 import AddModuleModal from './AddModuleModal';
 
-export const AttachModule = ({templateState, setTemplateState, formData,setFormData,tableData,attachedModules, setAttachedModules }) => {
+export const AttachModule = ({summaryData,setSummaryData, templateState, setTemplateState, formData,setFormData,tableData,attachedModules, setAttachedModules }) => {
   const [module, setModule] = useState([]);
   const [selectedPhase, setSelectedPhase] = useState(null);
   const [checkedModules, setCheckedModules] = useState([]);
@@ -17,55 +17,53 @@ export const AttachModule = ({templateState, setTemplateState, formData,setFormD
     status: true,
   });
 
-  // const handleModuleSelect = (moduleId,name) => {
-  //   if (selectedPhase === null) {
-  //     return;
-  //   }
-  //   if (checkedModules.includes(moduleId)) {
-  //     setCheckedModules(checkedModules.filter(id => id !== moduleId));
-  //   } else {
-  //     setCheckedModules([...checkedModules, moduleId]);
-  //   }
-    
-  //   setAttachedModules((prevAttachedModules) => ({
-  //     ...prevAttachedModules,
-  //     [selectedPhase]: checkedModules.includes(moduleId)
-  //       ? prevAttachedModules[selectedPhase].filter(id => id !== moduleId)
-  //       : [...(prevAttachedModules[selectedPhase] || []), moduleId],
-  //   }));
-
-  //   setFormData((prevFormData) => {
-  //     const moduleExists = prevFormData.modules.find((module) => module.id === moduleId);   
-  //     if (!moduleExists) {
-  //       const updatedModules = [...prevFormData.modules, { id: moduleId, name: name }];
-  //       return {
-  //         ...prevFormData,
-  //         modules: updatedModules,
-  //       };
-  //     }
-  //     return prevFormData;
-  //   });
-
-  //   const updatedTemplateState = { ...templateState };
-  //   const newModule = {
-  //     moduleId: moduleId,
-  //     phaseId: selectedPhase,
-  //   };
-
-  //   updatedTemplateState.modules.push(newModule);
-  //   setTemplateState(updatedTemplateState);
-  // };
-
   const handleModuleSelect = (moduleId, name) => {
     if (selectedPhase === null) {
       return;
+    }
+
+    const newModule = {
+      moduleId: moduleId,
+      moduleName: name,
+      tasks: [],
+    };
+
+    const phaseIndex = summaryData.phases.findIndex((phase) => phase.phaseId === selectedPhase);
+
+    if (phaseIndex !== -1) {
+      const updatedSummaryData = { ...summaryData };
+      updatedSummaryData.phases[phaseIndex].modules.push(newModule);
+      setSummaryData(updatedSummaryData);
     }
   
     setCheckedModules((prevCheckedModules) => {
       const moduleIsChecked = prevCheckedModules.includes(moduleId);
   
       if (moduleIsChecked) {
-        // If module is already checked, uncheck it and remove from templateState.modules
+        setFormData((prevFormData) => {
+          // Add some debugging logs here
+          console.log("Before filtering formData.modules:", prevFormData.modules);
+          const updatedModules = prevFormData.modules.filter((module) => module.id !== moduleId);
+          console.log("After filtering formData.modules:", updatedModules);
+          return {
+            ...prevFormData,
+            modules: updatedModules,
+          };
+        });
+
+        setSummaryData((prevData) => {
+          const updatedPhases = [...prevData.phases];
+          const moduleIndex = updatedPhases[phaseIndex].modules.findIndex(
+            (module) => module.moduleId === moduleId
+          );
+  
+          if (moduleIndex !== -1) {
+            updatedPhases[phaseIndex].modules.splice(moduleIndex, 1);
+          }
+  
+          return { ...prevData, phases: updatedPhases };
+        });
+
         setTemplateState((prevTemplateState) => {
           const updatedTemplateState = { ...prevTemplateState };
           const moduleIndex = updatedTemplateState.modules.findIndex(
@@ -145,6 +143,25 @@ export const AttachModule = ({templateState, setTemplateState, formData,setFormD
 
       return updatedTemplateState;})
 
+      setSummaryData((prevData) => {
+        const updatedPhases = prevData.phases.map((phase) => {
+          if (phase.phaseId === phaseId) {
+            const updatedModules = phase.modules.filter((module) => module.moduleId !== moduleId);
+            return { ...phase, modules: updatedModules };
+          }
+          return phase;
+        });
+    
+        return { ...prevData, phases: updatedPhases };
+      });
+
+      setFormData((prevFormData) => {
+        return {
+          ...prevFormData,
+          modules: prevFormData.modules.filter((module) => module.id !== moduleId)
+        };
+      });
+
   };
 
   const handleRemoveButton = (moduleId) => {
@@ -163,7 +180,7 @@ export const AttachModule = ({templateState, setTemplateState, formData,setFormD
 
   const fetchDataEffect = useCallback(async () => {
     try {
-      const modules = await axios.get("http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_module");
+      const modules = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/master/project_module`);
       setModule(modules.data);
     } catch (error) {
       console.error("Error fetching phase data:", error);

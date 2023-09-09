@@ -3,20 +3,20 @@ import { Button, Flex, FormLabel, Input, Menu, MenuButton, MenuItem, MenuList, T
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import axios from "axios"
 
-const DefineProject = ({templateState,setTemplateState,formData,setFormData}) => {
+const DefineProject = ({summaryData, setSummaryData, templateState,setTemplateState,formData,setFormData}) => {
   const [projectType,setProjectType] = useState([])
   const [segment,setSegment] = useState([])
   const [industry,setIndustry] = useState([])
 
   useEffect(() => {
     async function fetchData(){
-        const project = await axios.get("http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_type")
+        const project = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/master/project_type`)
         setProjectType(project.data)
 
-        const segment = await axios.get("http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_segment")
+        const segment = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/master/project_segment`)
         setSegment(segment.data);
 
-        const industry = await axios.get("http://ec2-34-247-84-33.eu-west-1.compute.amazonaws.com:5000/api/admin/master/project_industry")
+        const industry = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/master/project_industry`)
         setIndustry(industry.data);
     }
     fetchData();  
@@ -26,7 +26,7 @@ const DefineProject = ({templateState,setTemplateState,formData,setFormData}) =>
       <Flex direction="column" maxW="680px">
         <Flex align="center" mb="20px">
           <FormLabel flex="1">Template Name:</FormLabel>
-          <Input w="80%" type="text" placeholder="Enter the template name" value={formData.templateName} onChange={(e)=>{setTemplateState({...templateState,template_name: e.target.value}); setFormData({...formData,templateName: e.target.value})}}/>
+          <Input w="80%" type="text" placeholder="Enter the template name" value={formData.templateName} onChange={(e)=>{setTemplateState({...templateState,template_name: e.target.value}); setSummaryData({...summaryData,template_name: e.target.value});setFormData({...formData,templateName: e.target.value})}}/>
         </Flex>
 
         <Flex align="center" mb="20px">

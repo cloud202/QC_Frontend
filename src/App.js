@@ -10,6 +10,9 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import Phase from './pages/admin/Phase';
 import Module from './pages/admin/Module';
 import Task from './pages/admin/Task';
+import env from "react-dotenv";
+import Solution from './pages/admin/Solution';
+import CustomerList from './pages/admin/CustomerList';
 
 function App() {
 
@@ -23,6 +26,8 @@ function App() {
             <Route path="/admin/phase" element={<Phase/>}/>
             <Route path="/admin/module" element={<Module/>}/>
             <Route path="/admin/task" element={<Task/>}/>
+            <Route path="/admin/solution" element={<Solution/>}/>
+            <Route path="/admin/customer" element={<CustomerList/>}/>
             </Route>
 
             <Route path="/">
