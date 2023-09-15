@@ -152,6 +152,7 @@ export const AttachModule = ({summaryData,setSummaryData, setFormData,tableData,
     fetchDataEffect();
   }, [fetchDataEffect]);
 
+
   return (
     <Flex direction="column" maxW="680px">
       <Text mb='10px' p='5px' bg='gray.50' borderRadius='5px' fontSize={{ base: '15px', sm: '26px',md: '30px', lg: '30px' }} color="#445069">Attach Modules with selected phases</Text>

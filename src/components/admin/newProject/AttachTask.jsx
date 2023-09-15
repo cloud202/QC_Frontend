@@ -84,10 +84,19 @@ export const AttachTask = ({summaryData,setSummaryData,formData,setFormData,atta
     setCheckedTask(attachedTasks[moduleId] || []);
   };
 
-  const handleTaskSelect = (taskId, name) => {
+  const handleTaskSelect = (taskId, name,solution,action,type) => {
+    var sol;
+
+    if(solution!==null)
+      sol = solution.name
+
+    else sol = action
+    
     const newTask = {
       taskId: taskId,
-      taskName: name
+      taskName: name,
+      solName: sol,
+      solType: type
     }
     
 
@@ -124,12 +133,10 @@ export const AttachTask = ({summaryData,setSummaryData,formData,setFormData,atta
       setSummaryData((prevData) => {
         const updatedPhases = prevData.phases.map((phase) => {
           const updatedModules = phase.modules.map((module) => {
-            // Check if the moduleId matches the selectedModule
             if (module.moduleId === selectedModule) {
               // Convert module.tasks to an array if it's an object
               const tasksArray = Array.isArray(module.tasks) ? module.tasks : [];
       
-              // Add the newTask to the tasks array in this module
               tasksArray.push(newTask);
       
               return {
@@ -229,7 +236,7 @@ export const AttachTask = ({summaryData,setSummaryData,formData,setFormData,atta
                   size='md'
                   colorScheme='green'
                   isChecked={checkedTask.includes(val._id)}
-                  onChange={() => handleTaskSelect(val._id,val.name)}
+                  onChange={() => handleTaskSelect(val._id,val.name,val.task_solutionid,val.task_actionName,val.task_type)}
                 >
                   {val.name}
                 </Checkbox>
@@ -245,7 +252,7 @@ export const AttachTask = ({summaryData,setSummaryData,formData,setFormData,atta
       <Box mt='20px' p='5px' bg='gray.50' borderRadius='5px' fontSize={{ base: '18px', md: '22px', lg: '30px' }} color="#445069">
         Attached Tasks
       </Box>
-      <TableContainer mt="10px">
+      <Box mt="10px">
   <Table colorscheme="purple">
     <Thead>
       <Tr>
@@ -291,7 +298,7 @@ export const AttachTask = ({summaryData,setSummaryData,formData,setFormData,atta
       ))}
     </Tbody>
   </Table>
-</TableContainer>
+</Box>
     </Flex>
   );
 };

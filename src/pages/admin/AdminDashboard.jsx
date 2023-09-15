@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import {Box, Grid, GridItem, Image, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr} from '@chakra-ui/react'
+import {Box, Button, Grid, GridItem, HStack, Image, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr, useDisclosure} from '@chakra-ui/react'
 import { Navbar } from '../../components/admin/Navbar'
 import Sidebar from '../../components/admin/Sidebar'
 import '../../css/admin/adminDashboard.css'
@@ -8,11 +8,26 @@ import Footer from '../../components/global/Footer'
 import { useState,useCallback} from 'react'
 import axios from 'axios'
 import SkeletonTable from '../../components/global/Skeleton'
+import { EditIcon, RepeatIcon } from '@chakra-ui/icons'
+import Summary from '../../components/admin/newProject/Summary'
+import SummaryModal from '../../components/admin/newProject/SummaryModal'
+import UpdateProject from './UpdateProject'
+import { Link } from 'react-router-dom'
 
-const AdminDashboard = () => {
+const AdminDashboard = ({reviewData,setReviewData}) => {
   const [projectTemplate,setProjectTemplate] = useState([])
   const [isLoading,setIsLoading] = useState(true);
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
+  const fetchProject = async(projectId)=>{
+    try {
+      const {data} = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/master/v2/project_template/${projectId}`);
+      setReviewData(data);
+    } catch (error) {
+      console.error("Error fetching task data:", error);
+    }
+
+  }
   const fetchTaskDataEffect = useCallback(async () => {
     try {
       const {data} = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/master/v2/project_template`);
@@ -26,6 +41,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     fetchTaskDataEffect();
   }, [fetchTaskDataEffect]);
+
 
   return (
     <>
@@ -45,7 +61,8 @@ const AdminDashboard = () => {
 
           <Box className='dashboard-shadow' p={{ base: '6px',sm: '6px', md: '6px', lg: '2px' }}  mr={{base: '5px',sm: '8px',lg: '12px'}} ml={{base: '5px',sm: '8px',lg: '12px'}} mb='16px'>
             <Text className='sub-title' fontSize={{ base: '16px', md: '20px', lg: '22px' }}  mt={{ base: '6px',sm: '6px', md: '6px', lg: '12px' }} >Available Project Templates</Text>
-            {isLoading? <SkeletonTable/> : <TableContainer>
+            {isLoading? <SkeletonTable/> : 
+            <TableContainer>
               <Table variant='simple' size={{ base: 'sm', md: 'sm', lg: 'md' }} mt='6px'>
                 <Thead>
                   <Tr>
@@ -53,7 +70,8 @@ const AdminDashboard = () => {
                     <Th>Name</Th>
                     <Th>Type</Th> 
                     <Th>Segment</Th> 
-                    <Th>Industry</Th> 
+                    <Th>Industry</Th>
+                    <Th>Operation</Th>
                   </Tr>
                 </Thead>
 
@@ -63,16 +81,74 @@ const AdminDashboard = () => {
                     <Td>{project.project_id}</Td>
                     <Td>{project.template_name}</Td>
                     <Td>{project.template_type_id.name}</Td>
-                    <Td>{project.template_segment_id.name}</Td>
-                    <Td>{project.template_industry_id.name}</Td>
+                    <Td>{project.template_segments.map((segment)=>(
+                      <span key={segment.segment_id._id}>
+                      {segment.segment_id.name}
+                      <br/>
+                    </span>
+                    ))}</Td>
+                    <Td>
+                      {project.template_industries.map((industry) => (
+                        <span key={industry.industry_id._id}>
+                          {industry.industry_id.name}
+                          <br/>
+                        </span>
+                      ))}
+                    </Td>
+
+                    <Td>
+                      <HStack>
+                    <Box>
+                      <Link to='/admin/updateproject'>
+                      <Button size="sm" rightIcon={<RepeatIcon />} colorScheme="orange" onClick={async()=> await fetchProject(project._id)}>
+                        Update
+                      </Button>
+                      </Link>
+
+                    </Box>
+
+                    <Box>
+                      <Button size='sm'
+                        rightIcon={<EditIcon/>}
+                        colorScheme='blue'
+                        onClick={async ()=> {
+                          await fetchProject(project._id);
+                          onOpen();
+                        }}
+                        >
+                        Review
+                      </Button>
+                    </Box>
+                        </HStack>
+                    </Td>
                   </Tr>)}           
                 </Tbody>
               </Table>
-            </TableContainer>}
+            </TableContainer>
+
+            
+            }
           </Box>
             <Footer/>    
         </GridItem>
       </Grid>
+
+      <Modal isOpen={isOpen} onClose={onClose} size='5xl'>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Review template</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <SummaryModal summaryData={reviewData}/>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme='blue' mr={3} onClick={onClose}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
 
     </>
   )

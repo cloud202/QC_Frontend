@@ -1,12 +1,44 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Flex, FormLabel, Input, Menu, MenuButton, MenuItem, MenuList, Textarea } from '@chakra-ui/react';
+import { Button, Checkbox, Flex, FormLabel, HStack, Input, Menu, MenuButton, MenuItem, MenuList, Textarea } from '@chakra-ui/react';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import axios from "axios"
 
-const DefineProject = ({summaryData, setSummaryData,formData,setFormData}) => {
+const DefineProject = ({selectedSegments, setSelectedSegments, selectedIndustries, setSelectedIndustries, summaryData, setSummaryData,formData,setFormData}) => {
   const [projectType,setProjectType] = useState([])
   const [segment,setSegment] = useState([])
   const [industry,setIndustry] = useState([])
+
+
+  const handleSegmentChange = (val) => {
+    if (selectedSegments.includes(val._id)) {
+      setSelectedSegments(selectedSegments.filter((segmentId) => segmentId !== val._id));
+      setFormData({...formData,segment: formData.segment.filter((segment)=> segment!==val.name)});
+      setSummaryData({...summaryData,template_segment_id: summaryData.template_segment_id.filter((segId) =>segId.segment_id!==val._id)});
+    } else {
+      setSelectedSegments([...selectedSegments, val._id]);
+      setFormData({...formData,segment: [...formData.segment,val.name]});
+      const newSegment ={
+        segment_id: val._id
+      }
+      setSummaryData({...summaryData,template_segment_id: [...summaryData.template_segment_id,newSegment]});
+    }
+  };
+
+  const handleIndustryChange = (val) => {
+    if (selectedIndustries.includes(val._id)) {
+      setSelectedIndustries(selectedIndustries.filter((industryId) => industryId !== val._id));
+      setFormData({...formData,industry: formData.industry.filter((industry)=> industry!==val.name)});
+      setSummaryData({...summaryData,template_industry_id: summaryData.template_industry_id.filter((indId) =>indId.industry_id!==val._id)});
+    } else {
+      setSelectedIndustries([...selectedIndustries, val._id]);
+      setFormData({...formData,industry: [...formData.industry,val.name]});
+
+      const newIndustry = {
+        industry_id: val._id
+      }
+      setSummaryData({...summaryData,template_industry_id: [...summaryData.template_industry_id,newIndustry]});
+    }
+  };
 
   useEffect(() => {
     async function fetchData(){
@@ -21,6 +53,7 @@ const DefineProject = ({summaryData, setSummaryData,formData,setFormData}) => {
     }
     fetchData();  
   }, [])
+
 
   return (
       <Flex direction="column" maxW="680px">
@@ -48,12 +81,32 @@ const DefineProject = ({summaryData, setSummaryData,formData,setFormData}) => {
           <FormLabel flex="1">Segment:</FormLabel>
           <Menu >
             <MenuButton w="80%" as={Button} variant="outline" colorScheme="gray" rightIcon={<ChevronDownIcon />}>
-              {formData.segment}
+            {formData.segment.length > 0 ? formData.segment.map((segment, index) => (
+              <span key={segment}>
+                {segment}
+                {index !== formData.segment.length - 1 && ', '}
+              </span>
+            )): "Select one or more options"}
             </MenuButton>
             <MenuList>
-                {
-                    segment && segment.map((val,ind)=> <MenuItem key={ind} onClick={() => {setFormData({...formData,segment: val.name}); setSummaryData({...summaryData,template_segment_id: val._id})}}>{val.name}</MenuItem>)
-                }
+            {
+              segment &&
+              segment.map((val, ind) => (
+                <HStack pl='12px' key={val._id}>
+                  <Checkbox
+                    spacing={2}
+                    size='md'
+                    colorScheme='green'
+                    isChecked={selectedSegments.includes(val._id)}
+                    onChange={() => handleSegmentChange(val)}
+                  >
+                    {val.name}
+                  </Checkbox>
+                </HStack>
+              ))
+              // <MenuItem key={ind} onClick={() => {setFormData({...formData,segment: val.name}); setSummaryData({...summaryData,template_segment_id: val._id})}}>{val.name}</MenuItem>)
+            }
+
             </MenuList>
           </Menu>
         </Flex>
@@ -62,11 +115,29 @@ const DefineProject = ({summaryData, setSummaryData,formData,setFormData}) => {
           <FormLabel flex="1">Industry:</FormLabel>
           <Menu >
             <MenuButton w="80%" as={Button} variant="outline" colorScheme="gray" rightIcon={<ChevronDownIcon />}>
-              {formData.industry}
+              {formData.industry.length > 0 ? formData.industry.map((industry,ind)=>(
+                <span key={industry}>{industry}
+                {ind !== formData.industry.length - 1 && ','}
+                </span>
+              )): "Select one or more options"}
             </MenuButton>
             <MenuList>
                 {
-                    industry && industry.map((val,ind)=> <MenuItem key={ind} onClick={() => {setFormData({...formData,industry: val.name}); setSummaryData({...summaryData,template_industry_id: val._id})}}>{val.name}</MenuItem>)
+                    industry && 
+                    industry.map((val,ind)=> (
+                      <HStack pl='12px' key={val._id}>
+                      <Checkbox
+                        spacing={2}
+                        size='md'
+                        colorScheme='green'
+                        isChecked={selectedIndustries.includes(val._id)}
+                        onChange={() => handleIndustryChange(val)}
+                      >
+                        {val.name}
+                      </Checkbox>
+                    </HStack>
+                    ))
+                    // <MenuItem key={ind} onClick={() => {setFormData({...formData,industry: val.name}); setSummaryData({...summaryData,template_industry_id: val._id})}}>{val.name}</MenuItem>)
                 }
             </MenuList>
           </Menu>

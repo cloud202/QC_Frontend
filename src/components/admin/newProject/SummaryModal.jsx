@@ -1,15 +1,15 @@
-import { Box, Table, Thead, Tbody, Tr, Th, Td, Text, Divider, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, VStack, Flex } from "@chakra-ui/react";
+import { Box, Table, Thead, Tbody, Tr, Th, Td, Text, Divider, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, VStack, Flex, TableContainer } from "@chakra-ui/react";
 import React, { useState } from "react";
 
-const Summary = ({summaryData,formData}) => {
+const SummaryModal = ({summaryData}) => {
   return (
     <>
-    <Accordion maxW='680px' allowMultiple>
+    <Accordion allowMultiple>
       <AccordionItem>
         <h2>
           <AccordionButton>
             <Box as="span" flex='1' textAlign='left' >
-              <Text p='8px' bg='gray.50' maxW='680px' borderRadius='5px' fontSize={{ base: '15px', sm: '18px',md: '20px', lg: '25px' }} color="#445069">Template Name : {formData.templateName}</Text>
+              <Text p='8px' bg='gray.50' borderRadius='5px' fontSize={{ base: '15px', sm: '18px',md: '20px', lg: '25px' }} color="#445069">Template Name : {summaryData.template_name}</Text>
             </Box>
             <AccordionIcon />
           </AccordionButton>
@@ -18,26 +18,30 @@ const Summary = ({summaryData,formData}) => {
             <Flex flexDirection='column'>
 
             <Box as="span" flex='1' textAlign='left'>
-            <Text p='2px' fontSize={{ base: '15px', sm: '18px',md: '18px', lg: '20px' }} color="#445069">Template Type : {formData.projectType}</Text>      
+            <Text p='2px' fontSize={{ base: '15px', sm: '18px',md: '18px', lg: '20px' }} color="#445069">Template Type : {summaryData.template_type_id.name}</Text>      
             </Box>
 
             <Box as="span" flex='1' textAlign='left'>
-            <Text p='2px' fontSize={{ base: '15px', sm: '18px',md: '18px', lg: '20px' }} color="#445069">Segment : {formData.segment.map((segment,index)=> <span key={segment}>
-                {segment}
-                {index !== formData.segment.length - 1 && ', '}
+            <Text p='2px' fontSize={{ base: '15px', sm: '18px',md: '18px', lg: '20px' }} color="#445069">Segment : {summaryData.template_segments.map((segment,index)=> 
+            <span key={segment.segment_id._id}>
+                {segment.segment_id.name}
+                {index !== summaryData.template_segments.length - 1 && ', '}
               </span>)}</Text>      
             </Box>
             <Box as="span" flex='1' textAlign='left'>
-            <Text p='2px' fontSize={{ base: '15px', sm: '18px',md: '18px', lg: '20px' }} color="#445069">Industry : {formData.industry.map((inds,index)=> <span key={inds}>{inds} {index !== formData.industry.length -1 && ","} </span>)}</Text>      
-
-              
+            <Text p='2px' fontSize={{ base: '15px', sm: '18px',md: '18px', lg: '20px' }} color="#445069">Industry : {summaryData.template_industries.map((inds,index)=> 
+            <span key={inds.industry_id._id}>
+              {inds.industry_id.name} 
+              {index !== summaryData.template_industries.length -1 && ","} 
+              </span>)}</Text>      
+           
             </Box>
             </Flex>
         </AccordionPanel>
       </AccordionItem>
     </Accordion>
-    
-    <Box>
+
+<Box>
       <Table variant="simple" maxW='680px' >
         <Thead>
           <Tr>
@@ -56,18 +60,18 @@ const Summary = ({summaryData,formData}) => {
           {summaryData && summaryData.phases.map((phase) => (
             <Tr>
             <Td>
-             {phase.phaseName}
+             {phase.phasesId.name}
             </Td>
             
             <Td>
             {phase.modules.map((module) => (
                 <Table>     
-                <Td w='200px' p='8px'>{module.moduleName}</Td>
+                <Td w='200px' p='8px'>{module.moduleId.name}</Td>
                 <Td>
                   <ol>
                   {module.tasks.map((task) => (
                     <Box w='150px'>
-                    <li >{task.taskName}</li>
+                    <li >{task.taskId.name}</li>
                     </Box>
                     ))}
                     </ol>
@@ -77,7 +81,7 @@ const Summary = ({summaryData,formData}) => {
                     <Box w='150px'>
                   {module.tasks.map((task) => (
                     <Box w='150px'>
-                    <li >{task.solType}</li>
+                    <li >{task.taskId.task_type}</li>
                     </Box>
                     ))}
                     </Box>
@@ -86,9 +90,12 @@ const Summary = ({summaryData,formData}) => {
                   <Td>
                 {module.tasks.map((task) => (
                   <Box w='200px'>
-                  <ul>
-                    <li>{task.solName}</li>
-                  </ul>
+                    {task.taskId.task_solutionid?  <ul>
+                    <li>{task.taskId.task_solutionid.name}</li>
+                  </ul>:  <ul>
+                    <li>{task.taskId.task_actionName}</li>
+                  </ul>}
+                 
                   </Box>
                   ))}
                   </Td>
@@ -101,8 +108,7 @@ const Summary = ({summaryData,formData}) => {
       </Table>
     </Box>
     </>
-  );
+  )
+}
 
-};
-
-export default Summary;
+export default SummaryModal

@@ -10,19 +10,22 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import Phase from './pages/admin/Phase';
 import Module from './pages/admin/Module';
 import Task from './pages/admin/Task';
-import env from "react-dotenv";
 import Solution from './pages/admin/Solution';
 import CustomerList from './pages/admin/CustomerList';
+import UpdateProject from './pages/admin/UpdateProject';
+import { useState } from 'react';
 
 function App() {
+  const [reviewData,setReviewData] = useState(null);
 
   return (
     <div className="App">
       <BrowserRouter>
         <Routes>
           <Route path="/admin">
-            <Route index path="/admin" element={<AdminDashboard/>}/>
+            <Route index path="/admin" element={<AdminDashboard reviewData={reviewData} setReviewData={setReviewData}/>}/>
             <Route path="/admin/newproject" element={<NewProject/>}/>
+            <Route path="/admin/updateproject" element={<UpdateProject reviewData={reviewData} setReviewData={setReviewData}/>}/>
             <Route path="/admin/phase" element={<Phase/>}/>
             <Route path="/admin/module" element={<Module/>}/>
             <Route path="/admin/task" element={<Task/>}/>

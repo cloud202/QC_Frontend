@@ -4,7 +4,7 @@ import { Checkbox,Box, Button, Flex, FormControl, FormLabel, HStack, Input, Menu
 import { ChevronDownIcon, SmallCloseIcon } from '@chakra-ui/icons';
 import AddPhaseModal from './AddPhaseModal';
 
-export const SelectPhase = ({setSummaryData,formData,setFormData,tableData,setTableData}) => {
+export const SelectPhase = ({setSummaryData,formData,setFormData,tableData,setTableData,updatePhase=[]}) => {
   const toast = useToast()
   const { isOpen, onClose } = useDisclosure()
   const [phase,setPhase] = useState([])
@@ -48,56 +48,114 @@ export const SelectPhase = ({setSummaryData,formData,setFormData,tableData,setTa
     }
   };
 
-  const handlePhaseSelect = async (selectedPhaseId,selectedPhaseName) => {
+ 
 
+  //   setFormData(prevFormData => ({
+  //     ...prevFormData,
+  //     phases: prevFormData.phases.filter(phaseName => phaseName !== selectedPhaseName)
+  //   }));
+
+  //   setSummaryData((prevData) => ({
+  //     ...prevData,
+  //     phases: prevData.phases.filter((phase) => phase.phaseId !== selectedPhaseId),
+  //   }));
+  //   } else {
+  //     setCheckedPhases((prevCheckedPhases) => [
+  //       ...prevCheckedPhases,
+  //       selectedPhaseId,
+  //     ]);
+
+  //       try {
+  //           const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/master/project_phase/${selectedPhaseId}`);
+            
+  //           setFormData((prevFormData) => ({
+  //             ...prevFormData,
+  //             phases: [...prevFormData.phases, selectedPhaseName]
+  //           }));
+            
+  //           const newData = {
+  //             name: response.data.name,
+  //             description: response.data.description,
+  //             scope: response.data.scope,
+  //             id: response.data._id
+  //           };
+            
+  //           setTableData((prevTableData) => [...prevTableData, newData]);
+            
+  //           if(!updateCheck){
+  //           setSummaryData((prevData)=> ({
+  //             ...prevData,
+  //             phases: [...prevData.phases,newSummaryData]
+  //           }));}
+          
+  //       } catch (error) {
+  //         console.error("Error fetching selected phase data:", error);
+  //       }
+  // }
+  
+  // };
+
+  const handlePhaseSelect = async (selectedPhaseId, selectedPhaseName, updateCheck = false) => {
     const newSummaryData = {
       phaseId: selectedPhaseId,
       phaseName: selectedPhaseName,
       modules: []
     }
-
+  
     if (checkedPhases.includes(selectedPhaseId)) {
       setCheckedPhases(checkedPhases.filter(id => id !== selectedPhaseId));
-
-    setTableData(prevTableData => prevTableData.filter(rowData => rowData.id !== selectedPhaseId));
-    setFormData(prevFormData => ({
-      ...prevFormData,
-      phases: prevFormData.phases.filter(phaseName => phaseName !== selectedPhaseName)
-    }));
-
-    setSummaryData((prevData) => ({
-      ...prevData,
-      phases: prevData.phases.filter((phase) => phase.phaseId !== selectedPhaseId),
-    }));
-    } else {
-      setCheckedPhases([...checkedPhases, selectedPhaseId]);
-    try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/master/project_phase/${selectedPhaseId}`);
-
-      setFormData((prevFormData) => ({
+  
+      setTableData(prevTableData => prevTableData.filter(rowData => rowData.id !== selectedPhaseId));
+  
+      setFormData(prevFormData => ({
         ...prevFormData,
-        phases: [...prevFormData.phases, selectedPhaseName]
+        phases: prevFormData.phases.filter(phaseName => phaseName !== selectedPhaseName)
       }));
-
-      const newData = {
-        name: response.data.name,
-        description: response.data.description,
-        scope: response.data.scope,
-        id: response.data._id
-      };
   
-      setTableData((prevTableData) => [...prevTableData, newData]);
-      setSummaryData((prevData)=> ({
+      setSummaryData((prevData) => ({
         ...prevData,
-        phases: [...prevData.phases,newSummaryData]
+        phases: prevData.phases.filter((phase) => phase.phaseId !== selectedPhaseId),
       }));
-      
-    } catch (error) {
-      console.error("Error fetching selected phase data:", error);
-    }
-  }
+    } else {
+      setCheckedPhases((prevCheckedPhases) => [
+        ...prevCheckedPhases,
+        selectedPhaseId,
+      ]);
   
+      if (selectedPhaseId) {
+        try {
+          const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/master/project_phase/${selectedPhaseId}`);
+  
+          setFormData((prevFormData) => ({
+            ...prevFormData,
+            phases: [...prevFormData.phases, selectedPhaseName]
+          }));
+  
+          const newData = {
+            name: response.data.name,
+            description: response.data.description,
+            scope: response.data.scope,
+            id: response.data._id
+          };
+  
+          setTableData((prevTableData) => [...prevTableData, newData]);
+  
+          if (!updateCheck) {
+            setSummaryData((prevData) => ({
+              ...prevData,
+              phases: [...prevData.phases, newSummaryData]
+            }));
+          }
+        } catch (error) {
+          console.error("Error fetching selected phase data:", error);
+        }
+      } else {
+        // Handle the case where selectedPhaseId is not valid (empty or falsy)
+        console.error("Selected phaseId is not valid.");
+      }
+    }
   };
+  
 
   const handleRemovePhase =(index,phaseId,phase)=>{
     const updatedTableData = [...tableData];
@@ -130,7 +188,19 @@ export const SelectPhase = ({setSummaryData,formData,setFormData,tableData,setTa
 
   useEffect(() => {
     fetchDataEffect();
-  }, [phaseFormSubmitted,fetchDataEffect]);
+  
+    if (updatePhase.length > 0) {
+      updatePhase.forEach((phase) => {
+        // Check if the phase with the same ID is already in the tableData
+        const phaseExistsInTable = tableData.some((rowData) => rowData.id === phase.id);
+        
+        if (!phaseExistsInTable) {
+          handlePhaseSelect(phase.id, phase.name, true);
+        }
+      });
+    }
+  }, [phaseFormSubmitted, fetchDataEffect]);
+  
 
   return (
     <Flex direction="column" maxW="680px">
@@ -174,7 +244,6 @@ export const SelectPhase = ({setSummaryData,formData,setFormData,tableData,setTa
           <Box p={4}>
             <form>
               <VStack spacing={4}>
-
                 <FormControl isRequired>
 
                   <FormLabel>Name</FormLabel>
@@ -220,7 +289,7 @@ export const SelectPhase = ({setSummaryData,formData,setFormData,tableData,setTa
       </Flex>
         <Text mt='20px' p='5px' bg='gray.50' borderRadius='5px' fontSize={{ base: '18px', md: '22px', lg: '30px' }} color="#445069">Selected Phases</Text>
         
-        <TableContainer m='20px'>
+        <Box m='20px'>
             <Table colorScheme='purple' size='sm'>
               <Thead>
                 <Tr>
@@ -235,12 +304,14 @@ export const SelectPhase = ({setSummaryData,formData,setFormData,tableData,setTa
                   <Tbody key={rowData.id}>
                      {rowData.name !== "" && <Tr key={rowData.id}>
                         <Td>{rowData.name}</Td>
-                        <Td>{rowData.description}</Td>
+                        <Td>
+                        {rowData.description}
+                          </Td>
                         <Td>{rowData.scope}</Td>
                         <Td>
                             <Button
                               rightIcon={<SmallCloseIcon />}
-                              size='sm'
+                              size='xs'
                               colorScheme='red'
                               variant='outline'
                               onClick={() => handleRemovePhase(index,rowData.id,rowData.name)}
@@ -252,7 +323,7 @@ export const SelectPhase = ({setSummaryData,formData,setFormData,tableData,setTa
                 </Tbody>
                   ))}
             </Table>
-          </TableContainer>      
+          </Box>      
       </Flex>
   )
 }

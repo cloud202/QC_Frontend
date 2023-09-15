@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Navbar } from '../../components/admin/Navbar'
 import Sidebar from '../../components/admin/Sidebar'
 import { Grid, GridItem, Button, Flex, Progress, Box, Text, useToast, Spinner } from '@chakra-ui/react'
@@ -11,7 +11,7 @@ import axios from 'axios'
 import Summary from '../../components/admin/newProject/Summary'
 import { useNavigate } from 'react-router-dom';
 
-const NewProject = () => {
+const UpdateProject = ({reviewData, setReviewData}) => {
   const [currPage,setCurrPage] = useState(1);
   const toast = useToast();
   const navigate = useNavigate();
@@ -46,6 +46,7 @@ const NewProject = () => {
 
   const [attachedModules, setAttachedModules] = useState({});
   const [attachedTasks, setAttachedTasks] = useState({});
+
   const [selectedSegments, setSelectedSegments] = useState([]);
   const [selectedIndustries, setSelectedIndustries] = useState([]);
 
@@ -113,10 +114,10 @@ const NewProject = () => {
     const transformedData = transformData(summaryData);
     
     try{
-      const {data} = await axios.post(`${process.env.REACT_APP_API_URL}/api/admin/master/v2/project_template`,transformedData);
+      const {data} = await axios.patch(`${process.env.REACT_APP_API_URL}/api/admin/master/v2/project_template/${reviewData._id}`,transformedData);
       setIsLoading(false);
       toast({
-        title: "Project Template Submitted Successfully",
+        title: "Project Template Updated Successfully",
         description: "Thank you for your submission.",
         status: "success",
         duration: 3000,
@@ -137,11 +138,107 @@ const NewProject = () => {
     }
   }
 
-  setTimeout(() => {
-    console.log("SummaryData from Newproject",summaryData);
-    
-  }, 1800);
+  useEffect(() => {
+    if (reviewData && reviewData.phases) {
+      setFormData({
+        templateName: reviewData.template_name,
+        projectType: reviewData.template_type_id.name,
+        segment: reviewData.template_segments.map((segment) => segment.segment_id.name),
+        industry: reviewData.template_industries.map((industry) => industry.industry_id.name),
+        useCase: reviewData.template_usecase,
+        phases: reviewData.phases.map((phase) => {
+          return {
+          id: phase.phasesId._id,
+          name: phase.phasesId.name,
+          };
+        }),
+        modules: reviewData.phases.flatMap((phase) => {
+          return phase.modules.map((module) => {
+            return {
+              id: module.moduleId._id,
+              name: module.moduleId.name,
+            };
+          });
+        }),
+        task: reviewData.phases.flatMap((phase) => {
+          return phase.modules.flatMap((module) => {
+            return module.tasks.map((task) => {
+              return {
+                taskId: task.taskId._id,
+                taskName: task.taskId.name,
+              };
+            });
+          });
+        }),
+      });
 
+        const initialAttachedModules = {};
+        reviewData.phases.forEach((phase) => {
+          initialAttachedModules[phase.phasesId._id] = [];
+          phase.modules.forEach((module) => {
+            initialAttachedModules[phase.phasesId._id].push(module.moduleId._id);
+          });
+        });
+  
+        setAttachedModules(initialAttachedModules);
+
+        const initialAttachedTasks = {};
+        reviewData.phases.forEach((phase)=>{
+          phase.modules.forEach((module)=>{
+            initialAttachedTasks[module.moduleId._id] = [];
+            module.tasks.forEach((task)=>{
+              initialAttachedTasks[module.moduleId._id].push(task.taskId._id);
+            })
+          })
+        })
+
+        setAttachedTasks(initialAttachedTasks);
+
+        const industryIdObjects = (reviewData.template_industries || []).map((industry)=>({
+          industry_id: industry.industry_id._id || "",
+        }))
+
+        const segmentIdObjects = (reviewData.template_segments || []).map((segment) => ({
+          segment_id: segment.segment_id._id || "",
+        }));
+
+        setSummaryData({
+          template_name: reviewData.template_name,
+          template_type_id: reviewData.template_type_id._id || "",
+          template_segment_id: segmentIdObjects,
+          template_industry_id: industryIdObjects,
+          template_usecase: reviewData.template_usecase || "",
+          phases: reviewData.phases.map((phase) => ({
+            phaseId: phase.phasesId._id || "",
+            phaseName: phase.phasesId.name || "",
+
+            modules: phase.modules.reduce((moduleArray, module) => {
+              if (module && module.tasks) {
+                const tasks = module.tasks.map((task) => ({
+                  taskId: task.taskId._id || "",
+                  taskName: task.taskId.name || "",
+                  solName: task.taskId.task_solutionid?.name || task.taskId.task_actionName,
+                  solType: task.taskId.task_type || "",
+                }));
+                if (tasks.length > 0) {
+                  moduleArray.push({
+                    moduleId: module.moduleId._id || "",
+                    moduleName: module.moduleId.name || "",
+                    tasks: tasks,
+                  });
+                }
+              }
+              return moduleArray;
+            }, []),
+          })),
+        });
+
+        setSelectedSegments(reviewData.template_segments.map((segment)=> segment.segment_id._id));
+        setSelectedIndustries(reviewData.template_industries.map((industry)=> industry.industry_id._id));
+    }
+
+
+  }, [reviewData]);
 
   return (
     <>
@@ -154,19 +251,24 @@ const NewProject = () => {
       </GridItem>
 
       <GridItem colSpan={{base: '6', sm: '6', md: '6',lg: '5' }} m="30px">
-      <Text mb='20px' textAlign='center' p='5px' bg='#389785' color='white' borderRadius='5px' fontSize={{ base: '16px', sm: '18px',md: '25px', lg: '25px' }}>Create New Modernization-Journey Project Template</Text>
+      <Text mb='20px' textAlign='center' p='5px' bg='#389785' color='white' borderRadius='5px' fontSize={{ base: '16px', sm: '18px',md: '25px', lg: '25px' }}>Update Modernization-Journey Project Template</Text>
         <Progress value={100/5 * currPage} size='md' colorScheme='green' mb='10px' maxW='680px'/>
 
         { currPage===1 && <DefineProject selectedSegments={selectedSegments} setSelectedSegments={setSelectedSegments} selectedIndustries={selectedIndustries} setSelectedIndustries={setSelectedIndustries} summaryData={summaryData} setSummaryData={setSummaryData} formData={formData} setFormData={setFormData} />}
-        { currPage===2 && <SelectPhase setSummaryData={setSummaryData} formData={formData} setFormData={setFormData} tableData={tableData} setTableData={setTableData}/>}
+        
+        { currPage===2 && <SelectPhase setSummaryData={setSummaryData} formData={formData} setFormData={setFormData} tableData={tableData} setTableData={setTableData} updatePhase={formData.phases} />}
+
         { currPage===3 && <AttachModule summaryData={summaryData} setSummaryData={setSummaryData} formData={formData} setFormData={setFormData} tableData={tableData} attachedModules={attachedModules} setAttachedModules={setAttachedModules}/>}
 
         { currPage===4 && <AttachTask summaryData={summaryData} setSummaryData={setSummaryData} formData={formData} setFormData={setFormData} attachedTasks={attachedTasks} setAttachedTasks={setAttachedTasks}/>}
+        
         { currPage===5 && <Summary summaryData={summaryData} formData={formData} />}
+
         <Flex maxW="680px" justifyContent="space-between" alignItems="center" mt='10px'>
           <Button isDisabled={currPage===1} leftIcon={<ArrowBackIcon />} onClick={handlePrevious} colorScheme='purple' variant='outline' >Previous</Button>
+          
           <Button rightIcon={currPage!==5?<ArrowForwardIcon/>: (isLoading? <Spinner/> :<CheckIcon/>)} onClick={currPage!==5 ? handleNext: handleSubmit} colorScheme='purple' variant='outline' >{
-            currPage===4? "Review" : (currPage!==5?"Next":"Submit")
+            currPage===4? "Review" : (currPage!==5?"Next":"Update")
           }</Button>
         </Flex>
 
@@ -176,4 +278,4 @@ const NewProject = () => {
   )
 }
 
-export default NewProject
+export default UpdateProject
